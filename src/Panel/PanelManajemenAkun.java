@@ -221,7 +221,8 @@ private void showEditDialog(Map<String, String> userData) {
         });
         jScrollPane1.setViewportView(jTable);
 
-        BtHapus.setBackground(new java.awt.Color(255, 255, 0));
+        BtHapus.setBackground(new java.awt.Color(255, 0, 0));
+        BtHapus.setForeground(new java.awt.Color(255, 255, 255));
         BtHapus.setText("HAPUS");
         BtHapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
