@@ -276,7 +276,7 @@ public class PanelRegister extends javax.swing.JPanel {
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Username Sudah Di Gunakan");
+            
         }
     }//GEN-LAST:event_btLoginActionPerformed
 
