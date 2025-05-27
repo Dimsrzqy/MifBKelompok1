@@ -30,8 +30,9 @@ public class PanelManajemenAkun extends javax.swing.JPanel {
 List<String> idUserList = new ArrayList<>();
 
 private void loadTable() {
+    // Buat model tabel dengan kolom "No" di awal, "IDUser" disembunyikan nanti
     DefaultTableModel model = new DefaultTableModel(
-        new Object[]{"IDUser", "NamaUser", "Username", "Password", "Email", "Telephone", "Level"}, 0
+        new Object[]{"No", "IDUser", "NamaUser", "Username", "Password", "Email", "Telephone", "Level"}, 0
     );
     jTable.setModel(model);
 
@@ -39,9 +40,11 @@ private void loadTable() {
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT IDUser, NamaUser, Username, Password, Email, NoHp, Level FROM user")) {
 
+        int no = 1;
         while (rs.next()) {
             model.addRow(new Object[]{
-                rs.getString("IDUser"),  // Diubah dari "IDuser" ke "IDUser"
+                no++,                              // Kolom No
+                rs.getString("IDUser"),            // Kolom IDUser (disembunyikan di bawah)
                 rs.getString("NamaUser"),
                 rs.getString("Username"),
                 rs.getString("Password"),
@@ -54,7 +57,13 @@ private void loadTable() {
         System.out.println("Error saat mengambil data: " + e.getMessage());
         e.printStackTrace();
     }
+
+    // 🔒 Sembunyikan kolom IDUser dari tampilan, tetap tersedia di model
+    jTable.getColumnModel().getColumn(1).setMinWidth(0);
+    jTable.getColumnModel().getColumn(1).setMaxWidth(0);
+    jTable.getColumnModel().getColumn(1).setWidth(0);
 }
+
 
 private Map<String, String> getUserDataFromDatabase(String idUser) {
     Map<String, String> userData = new HashMap<>();
@@ -203,17 +212,17 @@ private void showEditDialog(Map<String, String> userData) {
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID User", "Nama", "Username", "Password", "Email", "Telephone", "Role"
+                "No", "ID User", "Nama", "Username", "Password", "Email", "Telephone", "Role"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -324,7 +333,7 @@ int selectedRow = jTable.getSelectedRow();
         return;
     }
 
-    Object idValue = jTable.getValueAt(selectedRow, 0);
+    Object idValue = jTable.getValueAt(selectedRow, 1);
 
     if (idValue == null) {
         JOptionPane.showMessageDialog(this,
