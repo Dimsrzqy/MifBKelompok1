@@ -1,0 +1,449 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+package Panel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Date;
+import javax.swing.JOptionPane;
+import java.sql.ResultSet;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+
+/**
+ *
+ * @author ASUS Vivobook
+ */
+public class PanelTransaksiBeli extends javax.swing.JPanel {
+
+    /**
+     * Creates new form PanelTambahBarang
+     */
+    public PanelTransaksiBeli() {
+        initComponents();
+       
+        loadKategori(); 
+        // Auto-generate barcode saat form dibuka
+    try {
+        String newBarcode = generateBarcode();
+        barcode.setText(newBarcode);
+    } catch (SQLException e) {
+        e.printStackTrace();
+        barcode.setText(""); // Default jika error
+        JOptionPane.showMessageDialog(this, "Gagal generate barcode: " + e.getMessage(), 
+            "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception e) {
+        e.printStackTrace();
+        barcode.setText(""); // Default jika error lain
+    }
+    }
+    
+    private String generateBarcode() throws SQLException {
+    String baseBarcode = null;
+    String lastBarcode = null;
+    
+    Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    
+    try {
+        con = Koneksi.getConnection();
+        String sql = "SELECT MAX(Barcode) as lastBarcode FROM barang WHERE Barcode LIKE ?";
+        ps = con.prepareStatement(sql);
+        ps.setString(1, baseBarcode + "%");
+        rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            lastBarcode = rs.getString("lastBarcode");
+        }
+        
+        if (lastBarcode != null) {
+            int lastNum = Integer.parseInt(lastBarcode.substring(9));
+            return baseBarcode + String.format("%03d", lastNum + 1);
+        }
+    } finally {
+        // Pastikan resources ditutup
+        if (rs != null) try { rs.close(); } catch (SQLException e) { /* ignore */ }
+        if (ps != null) try { ps.close(); } catch (SQLException e) { /* ignore */ }
+        if (con != null) try { con.close(); } catch (SQLException e) { /* ignore */ }
+    }
+    
+    return baseBarcode + "001"; // Jika belum ada data
+}
+    
+    
+
+    private static class Dashboard {
+
+        public Dashboard() {
+        }
+    }
+    
+    public class Koneksi {
+    public static Connection getConnection() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/koperasi_nuris"; // ganti dengan database kamu
+        String user = "root";
+        String pass = "";
+        return java.sql.DriverManager.getConnection(url, user, pass);
+    }
+}
+   
+    private String generateIDBarang() {
+    String prefix = "BRG";
+    String newID = "";
+    try {
+        String sql = "SELECT MAX(IDBarang) AS lastID FROM barang";
+        Connection con = (Connection) Koneksi.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next() && rs.getString("lastID") != null) {
+            String lastID = rs.getString("lastID");
+            int num = Integer.parseInt(lastID.substring(3)); // ambil angka setelah BRG
+            num++;
+            newID = prefix + String.format("%03d", num); // format ke 3 digit, contoh BRG005
+        } else {
+            newID = prefix + "001"; // kalau belum ada data
+        }
+        rs.close();
+        pst.close();
+        con.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error generate ID: " + e.getMessage());
+        newID = prefix + "001"; // fallback kalau error
+    }
+    return newID;
+}
+
+
+
+    
+    public void loadKategori() {
+    try {
+        Connection con = Koneksi.getConnection(); // pastikan ini method bukan variabel
+        String sql = "SELECT NamaKategori FROM kategori";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        kategori.removeAllItems(); // kosongkan combobox dulu
+        while (rs.next()) {
+            String nama = rs.getString("NamaKategori");
+            kategori.addItem(nama); // hanya nama kategori
+        }
+
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+    private void resetForm() {
+    n_barang.setText("");
+    hargab.setText("");
+    hargaj.setText("");
+    barcode.setText("");
+    kadaluarsa.setText("");
+    kategori.setSelectedIndex(0); // asumsi index 0 adalah pilihan default
+}
+
+
+
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        n_barang = new javax.swing.JTextField();
+        hargab = new javax.swing.JTextField();
+        hargaj = new javax.swing.JTextField();
+        barcode = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        kadaluarsa = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        simpan = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        kategori = new javax.swing.JComboBox<>();
+        barcode1 = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+
+        n_barang.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                n_barangActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Kategori ");
+
+        jLabel3.setText("Nama Barang ");
+
+        jLabel5.setText("Harga Beli");
+
+        jLabel6.setText("Harga Jual");
+
+        jLabel7.setText("stok");
+
+        jLabel8.setText("Kadaluarsa");
+
+        simpan.setBackground(new java.awt.Color(0, 204, 204));
+        simpan.setText("Simpan");
+        simpan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                simpanActionPerformed(evt);
+            }
+        });
+
+        jButton2.setBackground(new java.awt.Color(0, 204, 204));
+        jButton2.setText("Kembali");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setText("TRANSAKSI BELI");
+
+        kategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel9.setText("Barcode");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel7))
+                        .addGap(93, 93, 93)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(hargab, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                            .addComponent(hargaj, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                            .addComponent(barcode, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                            .addComponent(kadaluarsa, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                            .addComponent(n_barang, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                            .addComponent(kategori, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(barcode1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)))
+                    .addComponent(jLabel1))
+                .addContainerGap(201, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(simpan)
+                .addGap(85, 85, 85))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addGap(156, 156, 156))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(n_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(kategori, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(29, 29, 29)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hargab, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(hargaj, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(kadaluarsa, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(barcode, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(barcode1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addGap(72, 72, 72)
+                .addComponent(simpan)
+                .addGap(16, 16, 16))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void simpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpanActionPerformed
+    // Validasi input kosong
+    if (n_barang.getText().trim().isEmpty() || 
+        hargab.getText().trim().isEmpty() || 
+        hargaj.getText().trim().isEmpty() || 
+        kategori.getSelectedItem() == null) {
+        
+        JOptionPane.showMessageDialog(null, "Semua field harus diisi (kecuali barcode jika ingin auto-generate)!");
+        return;
+    }
+
+    try {
+        // Generate ID Barang dan Barcode otomatis
+        String idBarang = generateIDBarang();
+        String kodeBarcode;
+        
+        // Jika barcode dikosongkan, generate otomatis
+        if (barcode.getText().trim().isEmpty()) {
+            kodeBarcode = generateBarcode();
+        } else {
+            kodeBarcode = barcode.getText().trim();
+        }
+        
+        // Ambil nama kategori yang dipilih
+        String namaKategori = (String) kategori.getSelectedItem();
+        
+        // Cari ID Kategori berdasarkan nama
+        String idKategori = null;
+        try (Connection con = Koneksi.getConnection()) {
+            String sqlCari = "SELECT IDKategori FROM kategori WHERE NamaKategori = ?";
+            try (PreparedStatement ps = con.prepareStatement(sqlCari)) {
+                ps.setString(1, namaKategori);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        idKategori = rs.getString("IDKategori");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Kategori tidak ditemukan di database!");
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Ambil data dari form
+        String namaBarang = n_barang.getText();
+        double hargaBeli = Double.parseDouble(hargab.getText());
+        double hargaJual = Double.parseDouble(hargaj.getText());
+        Date tanggalMasuk = new Date(System.currentTimeMillis());
+        
+        // Proses tanggal kadaluarsa (jika diisi)
+        Date tanggalKadaluarsa = null;
+        if (!kadaluarsa.getText().trim().isEmpty()) {
+            try {
+                tanggalKadaluarsa = Date.valueOf(kadaluarsa.getText().trim());
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan format YYYY-MM-DD");
+                return;
+            }
+        }
+
+        // Query insert
+        String sqlInsert = "INSERT INTO barang (IDBarang, IDKategori, NamaBarang, HargaBeli, HargaJual, Barcode, TanggalMasuk, kadaluarsa) "
+                         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = Koneksi.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sqlInsert)) {
+            
+            pst.setString(1, idBarang);
+            pst.setString(2, idKategori);
+            pst.setString(3, namaBarang);
+            pst.setDouble(4, hargaBeli);
+            pst.setDouble(5, hargaJual);
+            pst.setString(6, kodeBarcode);
+            pst.setDate(7, tanggalMasuk);
+            
+            if (tanggalKadaluarsa != null) {
+                pst.setDate(8, tanggalKadaluarsa);
+            } else {
+                pst.setNull(8, java.sql.Types.DATE);
+            }
+  
+
+            int affectedRows = pst.executeUpdate();
+            if (affectedRows > 0) {
+                JOptionPane.showMessageDialog(null, "Data barang berhasil disimpan!\n"
+                    + "ID Barang: " + idBarang + "\n"
+                    + "Barcode: " + kodeBarcode);
+                resetForm();
+            } else {
+                JOptionPane.showMessageDialog(null, "Gagal menyimpan data barang!");
+            }
+        }
+        
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(null, "Format angka tidak valid! Pastikan stok dan harga berupa angka.");
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Database error: " + e.getMessage());
+        e.printStackTrace();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_simpanActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TO this.dispose();
+    
+    // Membuka form Dashboard
+  
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void n_barangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_n_barangActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_n_barangActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField barcode;
+    private javax.swing.JTextField barcode1;
+    private javax.swing.JTextField hargab;
+    private javax.swing.JTextField hargaj;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField kadaluarsa;
+    private javax.swing.JComboBox<String> kategori;
+    private javax.swing.JTextField n_barang;
+    private javax.swing.JButton simpan;
+    // End of variables declaration//GEN-END:variables
+}
