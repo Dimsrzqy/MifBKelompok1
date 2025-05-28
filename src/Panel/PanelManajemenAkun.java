@@ -68,7 +68,7 @@ List<String> idUserList = new ArrayList<>();
 private void loadTable() {
     // Buat model tabel dengan kolom "No" di awal, "IDUser" disembunyikan nanti
     DefaultTableModel model = new DefaultTableModel(
-        new Object[]{"No", "IDUser", "NamaUser", "Username", "Password", "Email", "Telephone", "Level"}, 0
+        new Object[]{"No", "IDUser", "Nama User", "Username", "Password", "Email", "Telephone", "Role"}, 0
     );
     jTable.setModel(model);
 
