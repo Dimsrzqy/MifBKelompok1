@@ -26,9 +26,17 @@ public class PanelRegister extends javax.swing.JPanel {
         
         TxNama.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "nama lengkap");
         TxUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "username");
-        JPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "password");
-        TxEmail.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "example@gmail.com");
+        TxPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "kombinasi huruf dan angka");
+        TxPassword2.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "konfirmasi password");
+        TxEmail.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "contoh@gmail.com");
         TxNoHp.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "nomor handphone");
+        
+        TxPassword.putClientProperty(FlatClientProperties.STYLE, ""
+            + "showRevealButton:true;"
+            + "showCapsLock:true");
+        TxPassword2.putClientProperty(FlatClientProperties.STYLE, ""
+            + "showRevealButton:true;"
+            + "showCapsLock:true");
     }
     public enum LevelUser {
     admin, user
@@ -46,6 +54,28 @@ public class PanelRegister extends javax.swing.JPanel {
         throw new RuntimeException(e);
     }
 }
+    
+    public boolean isPasswordValid(String password) {
+    if (password.length() < 6) {
+        return false; // Minimal 6 karakter
+    }
+
+    boolean adaHurufBesar = false;
+    boolean adaHurufKecil = false;
+    boolean adaAngka = false;
+
+    for (char c : password.toCharArray()) {
+        if (Character.isUpperCase(c)) {
+            adaHurufBesar = true;
+        } else if (Character.isLowerCase(c)) {
+            adaHurufKecil = true;
+        } else if (Character.isDigit(c)) {
+            adaAngka = true;
+        }
+    }
+
+    return adaHurufBesar && adaHurufKecil && adaAngka;
+}
 
    
     @SuppressWarnings("unchecked")
@@ -57,11 +87,10 @@ public class PanelRegister extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         TxNama = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        JPassword = new javax.swing.JPasswordField();
+        TxPassword2 = new javax.swing.JPasswordField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         BtRegister = new javax.swing.JButton();
@@ -71,6 +100,8 @@ public class PanelRegister extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         TxNoHp = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
+        TxPassword = new javax.swing.JPasswordField();
+        jLabel10 = new javax.swing.JLabel();
 
         jPanel2.setBackground(new java.awt.Color(28, 69, 50));
         jPanel2.setForeground(new java.awt.Color(28, 69, 50));
@@ -101,8 +132,6 @@ public class PanelRegister extends javax.swing.JPanel {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("ciptakan masa depan yang lebih berkah!");
 
-        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/logo_koperasi.png"))); // NOI18N
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -117,17 +146,11 @@ public class PanelRegister extends javax.swing.JPanel {
                         .addComponent(btLogin1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(73, 73, 73)))
                 .addContainerGap())
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addGap(27, 27, 27))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(66, 66, 66)
-                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addGap(39, 39, 39)
+                .addContainerGap(450, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel9)
@@ -193,6 +216,8 @@ public class PanelRegister extends javax.swing.JPanel {
 
         jLabel7.setText("No. Handphone");
 
+        jLabel10.setText("Konfirmasi Password");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -200,10 +225,11 @@ public class PanelRegister extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(117, 117, 117)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(TxPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(BtRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(TxNama, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(TxUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(JPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TxPassword2, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(TxEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(TxNoHp, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -211,7 +237,8 @@ public class PanelRegister extends javax.swing.JPanel {
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(82, 82, 82))
         );
         jPanel1Layout.setVerticalGroup(
@@ -230,8 +257,12 @@ public class PanelRegister extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(JPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(TxPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(TxPassword2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(TxEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -239,9 +270,9 @@ public class PanelRegister extends javax.swing.JPanel {
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(TxNoHp, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(BtRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addGap(32, 32, 32))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -292,7 +323,7 @@ public class PanelRegister extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(new JFrame(), "Nama harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
             } else if ("".equals(TxUsername.getText())) {
                 JOptionPane.showMessageDialog(new JFrame(), "Username harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if ("".equals(JPassword.getText())) {
+            } else if ("".equals(TxPassword2.getText())) {
                 JOptionPane.showMessageDialog(new JFrame(), "Password harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
             } else if ("".equals(TxEmail.getText())) {
                 JOptionPane.showMessageDialog(new JFrame(), "Email harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
@@ -301,12 +332,15 @@ public class PanelRegister extends javax.swing.JPanel {
             } else {
                 nama = TxNama.getText();
                 username = TxUsername.getText();
-                password = JPassword.getText();
+                password = TxPassword2.getText();
                 email = TxEmail.getText();
                 nohp = TxNoHp.getText();
 
                 String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-
+                
+                String Cekpassword = TxPassword.getText();
+                String konfirmasiPassword = TxPassword2.getText();
+                
                 if (email.matches(emailPattern)) {
 
                     // Cek apakah username sudah ada
@@ -314,7 +348,16 @@ public class PanelRegister extends javax.swing.JPanel {
                     Statement sCek = con.createStatement();
                     ResultSet rs = sCek.executeQuery(cekQuery);
 
+                    
 
+                    if (!Cekpassword.equals(konfirmasiPassword)) {
+                        JOptionPane.showMessageDialog(null, "Password dan Konfirmasi Password tidak sama!");
+                        return;
+                    }
+                    if (!isPasswordValid(password)) {
+                        JOptionPane.showMessageDialog(null, "Password harus minimal 6 karakter dan mengandung huruf besar, huruf kecil, dan angka!");
+                        return;
+                    }
                     if (rs.next()) {
                         JOptionPane.showMessageDialog(null, "Username sudah digunakan, silakan pilih yang lain.");
                         rs.close();
@@ -339,14 +382,13 @@ public class PanelRegister extends javax.swing.JPanel {
                     // Generate IDUser baru
                     String newIdUser = "";
                     if (lastId.equals("")) {
-                        newIdUser = "USR-001";
+                        newIdUser = "USR001";
                     } else {
                         String numberPart = lastId.substring(4); // ambil angka setelah 'USR-'
                         int number = Integer.parseInt(numberPart) + 1;
-                        newIdUser = String.format("USR-%03d", number);
+                        newIdUser = String.format("USR%03d", number);
                     }
-
-                    // Hash password
+                                 
                     String hashPassword = hashMD5(password);
 
                     // Insert jika username belum ada
@@ -357,7 +399,8 @@ public class PanelRegister extends javax.swing.JPanel {
                     // Kosongkan input
                     TxNama.setText("");
                     TxUsername.setText("");
-                    JPassword.setText("");
+                    TxPassword.setText("");
+                    TxPassword2.setText("");
                     TxEmail.setText("");
                     TxNoHp.setText("");
 
@@ -392,10 +435,11 @@ public class PanelRegister extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtRegister;
-    private javax.swing.JPasswordField JPassword;
     private javax.swing.JTextField TxEmail;
     private javax.swing.JTextField TxNama;
     private javax.swing.JTextField TxNoHp;
+    private javax.swing.JPasswordField TxPassword;
+    private javax.swing.JPasswordField TxPassword2;
     private javax.swing.JTextField TxUsername;
     private javax.swing.JButton btLogin1;
     private javax.swing.JLabel jLabel1;

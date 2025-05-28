@@ -5,12 +5,20 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.table.TableRowSorter;
 public class PCariBarang extends JDialog {
 
    
     public PCariBarang() {  
         initComponents();
         pack(); // menyesuaikan ukuran otomatis dengan isi layout
+        TxPencarian.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+    public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+    public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+    public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+});
+
         setLocationRelativeTo(null); // tengah layar
     }
 
@@ -38,13 +46,23 @@ public class PCariBarang extends JDialog {
         e.printStackTrace();
     }
 }
+    private String selectedBarang = null;
+
 public String getSelectedBarang() {
-    int row = TbDataProduk.getSelectedRow();
-    if (row != -1) {
-        return TbDataProduk.getValueAt(row, 0).toString(); // IDBarang
-    }
-    return null;
+    return selectedBarang;
 }
+
+
+private void filter() {
+    DefaultTableModel model = (DefaultTableModel) TbDataProduk.getModel();
+    TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+    TbDataProduk.setRowSorter(sorter);
+    String text = TxPencarian.getText();
+    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+}
+
+
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -55,10 +73,10 @@ public String getSelectedBarang() {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TbDataProduk = new javax.swing.JTable();
+        BtPilih = new javax.swing.JButton();
         TxPencarian = new javax.swing.JTextField();
 
-        setLayout(new java.awt.BorderLayout());
-        add(jSeparator1, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jSeparator1, java.awt.BorderLayout.CENTER);
 
         jPanel1.setBackground(new java.awt.Color(0, 204, 0));
 
@@ -72,7 +90,7 @@ public String getSelectedBarang() {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -83,7 +101,7 @@ public String getSelectedBarang() {
                 .addGap(24, 24, 24))
         );
 
-        add(jPanel1, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -100,30 +118,67 @@ public String getSelectedBarang() {
         ));
         jScrollPane1.setViewportView(TbDataProduk);
 
+        BtPilih.setText("PILIH");
+        BtPilih.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtPilihActionPerformed(evt);
+            }
+        });
+
+        TxPencarian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TxPencarianActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 718, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(TxPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(BtPilih)
+                .addGap(18, 18, 18)
+                .addComponent(TxPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(0, 17, Short.MAX_VALUE)
-                .addComponent(TxPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 91, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(BtPilih, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TxPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        add(jPanel2, java.awt.BorderLayout.PAGE_END);
+        getContentPane().add(jPanel2, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void BtPilihActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtPilihActionPerformed
+        BtPilih.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        int row = TbDataProduk.getSelectedRow();
+        if (row != -1) {
+            selectedBarang = TbDataProduk.getValueAt(row, 0).toString();
+            dispose(); // tutup dialog otomatis
+        } else {
+            JOptionPane.showMessageDialog(null, "Pilih barang terlebih dahulu!");
+        }
+    }
+});
+
+    }//GEN-LAST:event_BtPilihActionPerformed
+
+    private void TxPencarianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TxPencarianActionPerformed
+        filter();
+    }//GEN-LAST:event_TxPencarianActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BtPilih;
     private javax.swing.JTable TbDataProduk;
     private javax.swing.JTextField TxPencarian;
     private javax.swing.JLabel jLabel1;
