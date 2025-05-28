@@ -1,4 +1,3 @@
-
 package Panel;
 
 import Form.connect;
@@ -358,19 +357,20 @@ private void cetakStruk(String isiStruk) {
         Graphics2D g2d = (Graphics2D) graphics;
         g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
 
-        Font font = new Font("Monospaced", Font.PLAIN, 10);
+        // Ganti font jadi lebih tebal dan besar
+        Font font = new Font("Monospaced", Font.BOLD, 12); // Ukuran 12, gaya Bold
         g2d.setFont(font);
 
-        int y = 15;
+        int y = 20; // Agak dinaikkan jaraknya
         for (String line : isiStruk.split("\n")) {
             g2d.drawString(line, 10, y);
-            y += 15;
+            y += 20; // Sesuaikan jarak antar baris biar rapi
         }
 
         return Printable.PAGE_EXISTS;
     });
 
-    boolean doPrint = printerJob.printDialog(); // tampilkan dialog pilih printer
+    boolean doPrint = printerJob.printDialog();
     if (doPrint) {
         try {
             printerJob.print();
@@ -379,6 +379,7 @@ private void cetakStruk(String isiStruk) {
         }
     }
 }
+
 private String padRight(String text, int width) {
     return String.format("%-" + width + "s", text);
 }

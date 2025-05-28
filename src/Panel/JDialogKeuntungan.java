@@ -2,8 +2,11 @@ package Panel;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import javax.swing.*;
+import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import Form.connect;
+
 
 
 public class JDialogKeuntungan extends JDialog {
@@ -25,11 +28,11 @@ public class JDialogKeuntungan extends JDialog {
 
     private void hitungTotalKeuntungan() {
         try {
-            Connection conn = koneksi.koneksiDB();
+            Connection conn = connect.getConnection();
             String sql = """
-                SELECT SUM((b.harga_jual - b.harga_beli) * dp.jumlah) AS totalKeuntungan
-                FROM datapenjualan dp
-                JOIN barang b ON dp.kode_barang = b.kode_barang
+                SELECT SUM((b.HargaJual - b.HargaBeli) * dp.jumlah) AS totalKeuntungan
+                FROM transaksi_jual_dtl dp
+                JOIN barang b ON dp.IDBarang = b.IDBarang
             """;
             PreparedStatement pst = conn.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();

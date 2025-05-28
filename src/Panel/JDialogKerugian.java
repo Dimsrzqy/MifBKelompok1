@@ -1,40 +1,45 @@
 package Panel;
+import Form.connect;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
 public class JDialogKerugian extends JDialog {
-    public JDialogKerugian(JFrame parent) {
-        super(parent, "Tabel Kerugian", true);
-        setSize(600, 400);
+    private JTextField txTotalKerugian;
+    
+    public JDialogKerugian(Frame parent) {
+        super(parent, "Total Kerugian", true);
+        setSize(300, 150);
         setLocationRelativeTo(parent);
+        setLayout(new FlowLayout());
 
-        String[] column = {"ID Transaksi", "Produk", "Jumlah", "Kerugian"};
-        DefaultTableModel model = new DefaultTableModel(column, 0);
-        JTable table = new JTable(model);
-        JScrollPane sp = new JScrollPane(table);
-        add(sp);
+        txTotalKerugian = new JTextField(20);
+        txTotalKerugian.setEditable(false);
+        add(new JLabel("Total Kerugian (Modal Barang):"));
+        add(txTotalKerugian);
 
-        loadData(model);
+        hitungTotalKerugian();
     }
 
-    private void loadData(DefaultTableModel model) {
+    private void hitungTotalKerugian() {
         try {
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
-            String query = "SELECT t.IDTransaksi, b.NamaBarang, td.Jumlah, (b.HargaBeli - td.HargaJual) * td.Jumlah AS Kerugian FROM transaksi_detail td JOIN barang b ON td.IDBarang = b.IDBarang JOIN transaksi t ON td.IDTransaksi = t.IDTransaksi WHERE td.HargaJual < b.HargaBeli";
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery(query);
-
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                        rs.getString("IDTransaksi"),
-                        rs.getString("NamaBarang"),
-                        rs.getInt("Jumlah"),
-                        "Rp" + String.format("%,.2f", rs.getDouble("Kerugian"))
-                });
+            Connection conn = connect.getConnection();
+            String sql = """
+                SELECT SUM(b.harga_beli * dp.jumlah) AS totalKerugian
+                FROM datapenjualan dp
+                JOIN barang b ON dp.kode_barang = b.kode_barang
+            """;
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                double total = rs.getDouble("totalKerugian");
+                txTotalKerugian.setText(String.format("Rp%,.2f", total));
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error menghitung kerugian: " + e.getMessage());
         }
     }
 }
