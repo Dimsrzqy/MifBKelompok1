@@ -30,7 +30,7 @@ public class Menu extends JPanel {
         {"Manajemen Akun", "Akun Santri", "Akun Kasir"},
         {"Tabungan Santri"},
         {"Manajemen Barang", "Barang", "Stok", "Kategori"},
-        
+        {"~Laporan~"},
         {"Laporan Penjualan"},
         
         {"Logout"}

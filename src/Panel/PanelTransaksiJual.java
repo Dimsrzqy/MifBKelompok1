@@ -1,4 +1,3 @@
-
 package Panel;
 
 import Form.connect;
@@ -358,19 +357,20 @@ private void cetakStruk(String isiStruk) {
         Graphics2D g2d = (Graphics2D) graphics;
         g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
 
-        Font font = new Font("Monospaced", Font.PLAIN, 10);
+        // Ganti font jadi lebih tebal dan besar
+        Font font = new Font("Monospaced", Font.BOLD, 12); // Ukuran 12, gaya Bold
         g2d.setFont(font);
 
-        int y = 15;
+        int y = 20; // Agak dinaikkan jaraknya
         for (String line : isiStruk.split("\n")) {
             g2d.drawString(line, 10, y);
-            y += 15;
+            y += 20; // Sesuaikan jarak antar baris biar rapi
         }
 
         return Printable.PAGE_EXISTS;
     });
 
-    boolean doPrint = printerJob.printDialog(); // tampilkan dialog pilih printer
+    boolean doPrint = printerJob.printDialog();
     if (doPrint) {
         try {
             printerJob.print();
@@ -379,6 +379,7 @@ private void cetakStruk(String isiStruk) {
         }
     }
 }
+
 private String padRight(String text, int width) {
     return String.format("%-" + width + "s", text);
 }
@@ -621,6 +622,7 @@ private void cetakStrukLangsung(String idTransaksi, String namaKasir, double tot
             }
         });
 
+        txJumlah.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         txJumlah.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Jumlah", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 12))); // NOI18N
         txJumlah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -701,9 +703,9 @@ private void cetakStrukLangsung(String idTransaksi, String namaKasir, double tot
                         .addComponent(BtCari)
                         .addGap(57, 57, 57)
                         .addComponent(CbMetodePembayaran, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(50, 50, 50)
-                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                        .addGap(44, 44, 44)
+                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
                         .addComponent(txHargaSatuan, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
