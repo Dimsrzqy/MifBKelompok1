@@ -155,9 +155,11 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
+            
+            int no = 1;
             while (rs.next()) {
                 model.addRow(new Object[]{
+                    no++,
                     rs.getString("NamaPengguna"),
                     rs.getDouble("Saldo"),
                     rs.getDate("TanggalUpdate")
@@ -182,13 +184,13 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Nama", "Saldo", "Tanggal"
+                "No", "Nama", "Saldo", "Tanggal"
             }
         ));
         jScrollPane1.setViewportView(jTable);

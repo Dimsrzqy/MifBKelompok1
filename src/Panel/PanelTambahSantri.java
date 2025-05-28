@@ -122,7 +122,7 @@ private BigDecimal parseRupiahToBigDecimal(String text) {
     }
 }
 
-  private void simpanData() {
+private void simpanData() {
     String idBaru = txIDPengguna.getText().trim();
     String nama = txNama.getText().trim();
     String rfid = txRfid.getText().trim();
@@ -141,19 +141,29 @@ private BigDecimal parseRupiahToBigDecimal(String text) {
         return;
     }
 
-    try {
+    String url = "jdbc:mysql://localhost:3306/koperasi_nuris";
+    String user = "root";
+    String pass = "";
+
+    try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+        // Cek duplikat RFID
+        String cekRFID = "SELECT COUNT(*) FROM pengguna WHERE NoRFID = ?";
+        try (PreparedStatement cekStmt = conn.prepareStatement(cekRFID)) {
+            cekStmt.setString(1, rfid);
+            ResultSet rs = cekStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(this, "RFID sudah terdaftar! Gunakan RFID lain.");
+                return;
+            }
+        }
+
+        // Lanjut insert jika RFID unik
         BigDecimal saldo = parseRupiahToBigDecimal(saldoText);
         java.sql.Date tanggal = new java.sql.Date(System.currentTimeMillis());
 
         String sql = "INSERT INTO pengguna (IDPengguna, NamaPengguna, NoRFID, JenisKelamin, Asrama, Lembaga, Saldo, TanggalUpdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        String url = "jdbc:mysql://localhost:3306/koperasi_nuris";
-        String user = "root";
-        String pass = "";
-
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, idBaru);
             pst.setString(2, nama);
             pst.setString(3, rfid);
@@ -188,6 +198,7 @@ private BigDecimal parseRupiahToBigDecimal(String text) {
         e.printStackTrace();
     }
 }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
