@@ -291,12 +291,18 @@ public PanelDataSantri() {
     }//GEN-LAST:event_BtHapusActionPerformed
 
     private void btTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btTambahActionPerformed
-    PanelTambahSantri panelTambah = new PanelTambahSantri(this);  // Kirim 'this' sebagai panelInduk
+try {
+    PanelTambahSantri panelTambah = new PanelTambahSantri(this);
     JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Tambah Santri", true);
     dialog.setContentPane(panelTambah);
     dialog.pack();
     dialog.setLocationRelativeTo(this);
     dialog.setVisible(true);
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "Gagal membuka form tambah: " + e.getMessage());
+    e.printStackTrace();
+}
+
     }//GEN-LAST:event_btTambahActionPerformed
 
 

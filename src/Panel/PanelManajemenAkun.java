@@ -69,7 +69,7 @@ List<String> idUserList = new ArrayList<>();
 private void loadTable() {
     // Buat model tabel dengan kolom "No" di awal, "IDUser" disembunyikan nanti
     DefaultTableModel model = new DefaultTableModel(
-        new Object[]{"No", "IDUser", "NamaUser", "Username", "Password", "Email", "Telephone", "Level"}, 0
+        new Object[]{"No", "IDUser", "Nama User", "Username", "Password", "Email", "Telephone", "Role"}, 0
     );
     jTable.setModel(model);
 
@@ -328,9 +328,9 @@ private void showEditDialog(Map<String, String> userData) {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(LbTanggal))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(LbTanggal, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(24, 24, 24)
