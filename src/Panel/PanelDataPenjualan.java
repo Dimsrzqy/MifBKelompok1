@@ -43,7 +43,7 @@ public class PanelDataPenjualan extends javax.swing.JPanel {
         tampilkanTransaksiUtama();
         
         JTableHeader header = TbDataPenjualan.getTableHeader();
-        header.setBackground(new Color(0, 102, 204)); // biru tua
+        header.setBackground(new Color(28, 69, 50)); // biru tua
         header.setForeground(Color.WHITE);           // teks putih
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         
@@ -61,7 +61,7 @@ public class PanelDataPenjualan extends javax.swing.JPanel {
                 c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
             }
         } else {
-            c.setBackground(new Color(204, 229, 255)); // warna saat dipilih
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
         }
 
         return c;
