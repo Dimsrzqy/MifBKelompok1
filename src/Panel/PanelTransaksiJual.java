@@ -1,4 +1,3 @@
-
 package Panel;
 
 import Form.connect;
@@ -30,6 +29,8 @@ import java.awt.print.PrinterJob;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import java.awt.*;
+import java.awt.print.*;
 
 public class PanelTransaksiJual extends javax.swing.JPanel {
 
@@ -85,6 +86,18 @@ public class PanelTransaksiJual extends javax.swing.JPanel {
         return c;
     }
 });
+        
+        tbTransaksi.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        int selectedRow = tbTransaksi.getSelectedRow();
+        if (selectedRow >= 0) {
+            // Ambil jumlah dari kolom 3 (index 3 = jumlah)
+            String jumlah = tbTransaksi.getValueAt(selectedRow, 3).toString();
+            txJumlah.setText(jumlah);
+        }
+    }
+});
 
 
     }
@@ -98,7 +111,7 @@ public class PanelTransaksiJual extends javax.swing.JPanel {
     txNamaProduk.setVisible(false);
     txHargaSatuan.setVisible(false);
     btTambah.setVisible(false);
-    txJumlah.setVisible(false);
+    txJumlah.setVisible(true);
 }
     
 public String generateNoTransaksi() {
@@ -258,9 +271,45 @@ private double parseRupiah(String formatted) {
         return 0;
     }
 }
+    private void hitungTotalBayar() {
+    double total = 0;
+    for (int i = 0; i < tbTransaksi.getRowCount(); i++) {
+        total += Double.parseDouble(tbTransaksi.getValueAt(i, 4).toString());
+    }
+    txTotalUtama.setText(formatRupiah(total));
+}
 
 
 
+
+    private void updateJumlahProduk() {
+    int selectedRow = tbTransaksi.getSelectedRow();
+    if (selectedRow >= 0) {
+        try {
+            int newJumlah = Integer.parseInt(txJumlah.getText());
+            if (newJumlah <= 0) {
+                JOptionPane.showMessageDialog(this, "Jumlah harus lebih dari 0");
+                return;
+            }
+
+            // Update jumlah di tabel
+            tbTransaksi.setValueAt(newJumlah, selectedRow, 3);
+
+            
+            double harga = Double.parseDouble(tbTransaksi.getValueAt(selectedRow, 2).toString());
+            double newSubtotal = newJumlah * harga;
+            tbTransaksi.setValueAt(newSubtotal, selectedRow, 4);
+
+            // Update total bayar (jika ada metode hitung total)
+            hitungTotalBayar();
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Jumlah harus berupa angka");
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Pilih produk di tabel terlebih dahulu");
+    }
+}
 
 private void updateTotalHarga() {
     DefaultTableModel model = (DefaultTableModel) tbTransaksi.getModel();
@@ -329,11 +378,6 @@ private void cetakStruk(String isiStruk) {
         }
     }
 }
-    private String centerText(String text, int width) {
-    int padding = (width - text.length()) / 2;
-    return " ".repeat(Math.max(0, padding)) + text;
-}
-
 private String padRight(String text, int width) {
     return String.format("%-" + width + "s", text);
 }
@@ -346,54 +390,94 @@ private String line(int length) {
     return "-".repeat(length);
 }
 
-private void cetakStruk(String idTransaksi, String namaKasir, double total, double bayar, double kembalian, DefaultTableModel model) {
-    StringBuilder struk = new StringBuilder();
+private String centerText(String text, int width) {
+    int pad = (width - text.length()) / 2;
+    return " ".repeat(Math.max(0, pad)) + text;
+}
 
-    // Header
-    struk.append(centerText("KOPERASI NURIS", 32)).append("\n");
-    struk.append(centerText("Jl. Pesantren No. 1 Jember", 32)).append("\n");
-    struk.append(line(32)).append("\n");
 
-    // Info Transaksi
-    struk.append(padRight("No. Transaksi", 14)).append(": ").append(idTransaksi).append("\n");
-    struk.append(padRight("Kasir", 14)).append(": ").append(namaKasir).append("\n");
-    struk.append(padRight("Tanggal", 14)).append(": ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))).append("\n");
-    struk.append(line(32)).append("\n");
+private void cetakStrukLangsung(String idTransaksi, String namaKasir, double total, double bayar, double kembalian, DefaultTableModel model) {
+    PrinterJob job = PrinterJob.getPrinterJob();
+    job.setJobName("Struk Transaksi");
 
-    // Item List
-    for (int i = 0; i < model.getRowCount(); i++) {
-        String nama = model.getValueAt(i, 1).toString();
-        String jumlah = model.getValueAt(i, 3).toString();
-        String subtotal = formatRupiah(Double.parseDouble(model.getValueAt(i, 4).toString()));
+    PageFormat pf = job.defaultPage();
+    Paper paper = new Paper();
+    double width = 2.83 * 72;  // 80mm lebar (2.83 inch * 72 dpi)
+    double height = 11 * 72;   // Tinggi 11 inch
+    double margin = 10;
 
-        // Format: NamaBarang
-        //         xJumlah     Subtotal
-        struk.append(nama).append("\n");
-        struk.append(padRight(" x" + jumlah, 10)).append(padLeft(subtotal, 22)).append("\n");
-    }
+    paper.setSize(width, height);
+    paper.setImageableArea(margin, margin, width - 2 * margin, height - 2 * margin);
+    pf.setPaper(paper);
 
-    struk.append(line(32)).append("\n");
+    job.setPrintable(new Printable() {
+        @Override
+        public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
+            if (pageIndex > 0) return NO_SUCH_PAGE;
 
-    // Ringkasan
-    struk.append(padRight("Total", 14)).append(": ").append(formatRupiah(total)).append("\n");
-    struk.append(padRight("Bayar", 14)).append(": ").append(formatRupiah(bayar)).append("\n");
-    struk.append(padRight("Kembalian", 14)).append(": ").append(formatRupiah(kembalian)).append("\n");
-    struk.append(line(32)).append("\n");
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.translate(pf.getImageableX(), pf.getImageableY());
+            g2d.setFont(new Font("Monospaced", Font.PLAIN, 9));
 
-    // Footer
-    struk.append(centerText("Terima kasih", 32)).append("\n");
-    struk.append(centerText("atas kunjungannya!", 32)).append("\n");
+            int y = 10;
+            int lineHeight = g2d.getFontMetrics().getHeight();
 
-    // Cetak
-    try {
-        JTextArea area = new JTextArea(struk.toString());
-        area.setFont(new Font("Monospaced", Font.PLAIN, 10)); // kecilkan font
-        area.print(); // print ke printer default
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Gagal mencetak struk: " + e.getMessage());
-        e.printStackTrace();
+            // HEADER
+            g2d.drawString(centerText("KOPERASI NURIS", 32), 0, y); y += lineHeight;
+            g2d.drawString(centerText("Jl. Pangandaran No. 48", 32), 0, y); y += lineHeight;
+            g2d.drawString(centerText("Kec Sumbersari Kab Jember", 32), 0, y); y += lineHeight;
+            g2d.drawString(centerText("No Telp. (0331)339544", 32), 0, y); y += lineHeight;
+            g2d.drawString("--------------------------------", 0, y); y += lineHeight;
+            
+
+            g2d.drawString("No. Transaksi : " + idTransaksi, 0, y); y += lineHeight;
+            g2d.drawString("Kasir         : " + namaKasir, 0, y); y += lineHeight;
+            g2d.drawString("Tanggal       : " + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")), 0, y); y += lineHeight;
+            g2d.drawString("--------------------------------", 0, y); y += lineHeight;
+
+            // LIST PRODUK
+            int totalItem = 0;
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String namaProduk = model.getValueAt(i, 1).toString();
+                String jumlah = model.getValueAt(i, 3).toString();
+                String subtotal = formatRupiah(Double.parseDouble(model.getValueAt(i, 4).toString()));
+                totalItem += Integer.parseInt(jumlah);
+
+                g2d.drawString(namaProduk, 0, y); y += lineHeight;
+                g2d.drawString(" x" + jumlah + padLeft(subtotal, 30 - jumlah.length()), 0, y); y += lineHeight;
+            }
+
+            g2d.drawString("--------------------------------", 0, y); y += lineHeight;
+
+            // RINGKASAN
+            g2d.drawString("Total Item    : " + totalItem, 0, y); y += lineHeight;
+            g2d.drawString("Total Belanja : " + formatRupiah(total), 0, y); y += lineHeight;
+            g2d.drawString("--------------------------------", 0, y); y += lineHeight;
+            g2d.drawString("Bayar         : " + formatRupiah(bayar), 0, y); y += lineHeight;
+            g2d.drawString("Kembalian     : " + formatRupiah(kembalian), 0, y); y += lineHeight;
+            g2d.drawString("--------------------------------", 0, y); y += lineHeight;
+
+            g2d.drawString(centerText("Terima Kasih ", 32), 0, y); y += lineHeight;
+            g2d.drawString(centerText("Atas Kunjungannya", 32), 0, y); y += lineHeight;
+            g2d.drawString(centerText("Email: yayasannurisjember@gmail.com", 32), 0, y); y += lineHeight;
+
+            
+            
+            
+            return PAGE_EXISTS;
+        }
+    }, pf);
+
+    if (job.printDialog()) {
+        try {
+            job.print();
+        } catch (PrinterException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal mencetak: " + e.getMessage());
+        }
     }
 }
+
 
 
 
@@ -616,13 +700,13 @@ private void cetakStruk(String idTransaksi, String namaKasir, double total, doub
                         .addComponent(BtCari)
                         .addGap(57, 57, 57)
                         .addComponent(CbMetodePembayaran, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
-                        .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(50, 50, 50)
+                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                         .addComponent(txHargaSatuan, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -631,11 +715,12 @@ private void cetakStruk(String idTransaksi, String namaKasir, double total, doub
             .addGroup(jPanel12Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CbMetodePembayaran, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(CbMetodePembayaran, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(BtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txHargaSatuan, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(btTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -852,8 +937,10 @@ if (metode.equalsIgnoreCase("Cashless")) {
         }
 
         JOptionPane.showMessageDialog(this, "Transaksi berhasil disimpan!");
+        cetakStrukLangsung(idTransaksi, PanelLogin.UserSession.getNamaKasir(), totalHarga, bayar, kembalian, model);
         resetForm();
-        cetakStruk(idTransaksi, PanelLogin.UserSession.getNamaKasir(), totalHarga, bayar, kembalian, model);
+        
+
         
 
 
@@ -869,7 +956,7 @@ if (metode.equalsIgnoreCase("Cashless")) {
     }//GEN-LAST:event_txHargaSatuanActionPerformed
 
     private void txJumlahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txJumlahActionPerformed
-        // TODO add your handling code here:
+        updateJumlahProduk();
     }//GEN-LAST:event_txJumlahActionPerformed
 
     private void txBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txBarcodeActionPerformed

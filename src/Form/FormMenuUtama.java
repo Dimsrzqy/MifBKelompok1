@@ -9,6 +9,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import kasir.main.Main;
 
@@ -99,13 +100,29 @@ public class FormMenuUtama extends javax.swing.JFrame {
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
      }
     
-    public static void logout(){
+    public static void logout() {
+    // Buat tombol custom dengan ikon
+    Object[] options = {"Ya, Keluar", "Batal"};
+    
+    int confirm = JOptionPane.showOptionDialog(
+        app,
+        "Anda akan keluar dari aplikasi. Lanjutkan?",
+        "Logout",
+        JOptionPane.DEFAULT_OPTION,
+        JOptionPane.WARNING_MESSAGE,
+        null,
+        options,
+        options[1] // default ke Batal
+    );
+    
+    if (confirm == 0) { // Ya, Keluar
         FlatAnimatedLafChange.showSnapshot();
         app.setContentPane(app.PLogin);
         app.PLogin.applyComponentOrientation(app.getComponentOrientation());
         SwingUtilities.updateComponentTreeUI(app.PLogin);
-        FlatAnimatedLafChange.hideSnapshotWithAnimation();  
+        FlatAnimatedLafChange.hideSnapshotWithAnimation();
     }
+}
     
     public static void setSelectedMenu(int index, int subMenu){
         app.mainForm.setSelectedMenu(index, subMenu);
