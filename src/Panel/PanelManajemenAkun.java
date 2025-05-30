@@ -1,4 +1,3 @@
-
 package Panel;
 
 import java.sql.Connection;
