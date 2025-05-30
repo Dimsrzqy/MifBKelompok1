@@ -75,6 +75,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="IDKategori">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="IDKategoriActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="NamaKategori">
     </Component>

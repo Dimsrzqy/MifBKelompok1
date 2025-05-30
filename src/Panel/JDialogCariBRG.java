@@ -1,5 +1,3 @@
-// === PCariBarang.java (UPDATED) ===
-
 package Panel;
 
 import Form.connect;

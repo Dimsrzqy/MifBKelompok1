@@ -68,19 +68,12 @@
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel10" pref="0" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
-                  <Component id="jLabel10" pref="0" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
+                  <EmptySpace pref="450" max="32767" attributes="0"/>
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
@@ -144,13 +137,6 @@
             <Property name="text" type="java.lang.String" value="ciptakan masa depan yang lebih berkah!"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel10">
-          <Properties>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/Icon/logo_koperasi.png"/>
-            </Property>
-          </Properties>
-        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel1">
@@ -172,10 +158,11 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="117" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="TxPassword" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="BtRegister" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="TxNama" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="TxUsername" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
-                      <Component id="JPassword" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
+                      <Component id="TxPassword2" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="TxEmail" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="TxNoHp" alignment="0" min="-2" pref="276" max="-2" attributes="0"/>
                       <Component id="jLabel1" alignment="0" min="-2" pref="97" max="-2" attributes="0"/>
@@ -184,6 +171,7 @@
                       <Component id="jLabel5" alignment="0" min="-2" pref="97" max="-2" attributes="0"/>
                       <Component id="jLabel6" alignment="0" min="-2" pref="97" max="-2" attributes="0"/>
                       <Component id="jLabel7" alignment="0" min="-2" pref="97" max="-2" attributes="0"/>
+                      <Component id="jLabel10" alignment="0" min="-2" pref="123" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="82" max="-2" attributes="0"/>
               </Group>
@@ -205,8 +193,12 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="JPassword" min="-2" pref="36" max="-2" attributes="0"/>
+                  <Component id="TxPassword" min="-2" pref="38" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+                  <Component id="TxPassword2" min="-2" pref="38" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="TxEmail" min="-2" pref="38" max="-2" attributes="0"/>
@@ -214,9 +206,9 @@
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="TxNoHp" min="-2" pref="38" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Component id="BtRegister" min="-2" pref="44" max="-2" attributes="0"/>
-                  <EmptySpace pref="123" max="32767" attributes="0"/>
+                  <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -237,7 +229,7 @@
             <Property name="text" type="java.lang.String" value="Nama"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JPasswordField" name="JPassword">
+        <Component class="javax.swing.JPasswordField" name="TxPassword2">
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -312,6 +304,13 @@
         <Component class="javax.swing.JLabel" name="jLabel7">
           <Properties>
             <Property name="text" type="java.lang.String" value="No. Handphone"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JPasswordField" name="TxPassword">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel10">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Konfirmasi Password"/>
           </Properties>
         </Component>
       </SubComponents>

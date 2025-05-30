@@ -24,7 +24,11 @@ public class TambahStokKategori extends javax.swing.JPanel {
      */
     public TambahStokKategori() {
         initComponents();
+        IDKategori.setText(generateIdKategoriBaru());
+        IDKategori.setEditable(false); // Biar gak diubah manual
+
     }
+  
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -51,6 +55,12 @@ public class TambahStokKategori extends javax.swing.JPanel {
         jLabel1.setText("Id Kategori");
 
         jLabel2.setText("Nama Kategori");
+
+        IDKategori.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IDKategoriActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Tambah");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -93,7 +103,31 @@ public class TambahStokKategori extends javax.swing.JPanel {
                 .addContainerGap(116, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+     private String generateIdKategoriBaru() {
+    String idBaru = "KTG01";
+    try {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT IDKategori FROM kategori ORDER BY IDKategori DESC LIMIT 1";
+        ResultSet rs = stmt.executeQuery(sql);
 
+        if (rs.next()) {
+            String idTerakhir = rs.getString("IDKategori"); // Misalnya: KTG12
+            int angka = Integer.parseInt(idTerakhir.substring(3)); // Ambil angka "12"
+            angka++;
+            idBaru = String.format("KTG%02d", angka); // Hasil: KTG13
+        }
+
+        conn.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return idBaru;
+}
+
+    
+    
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
@@ -128,8 +162,14 @@ public class TambahStokKategori extends javax.swing.JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void IDKategoriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDKategoriActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_IDKategoriActionPerformed
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField IDKategori;

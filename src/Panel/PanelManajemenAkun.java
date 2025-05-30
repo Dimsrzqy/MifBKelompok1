@@ -1,4 +1,3 @@
-
 package Panel;
 
 import java.sql.Connection;
@@ -14,9 +13,17 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import Panel.PopupEditManAkun;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javax.swing.JDialog;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 public class PanelManajemenAkun extends javax.swing.JPanel {
 
@@ -26,12 +33,42 @@ public class PanelManajemenAkun extends javax.swing.JPanel {
     public PanelManajemenAkun() {
         initComponents();
         loadTable();
+        
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+        LbTanggal.setText(LocalDate.now().format(dtf));
+        
+        JTableHeader header = jTable.getTableHeader();
+        header.setBackground(new Color(28, 69, 50)); // biru tua
+        header.setForeground(Color.WHITE);           // teks putih
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        jTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(Color.WHITE); // baris genap
+            } else {
+                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+            }
+        } else {
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
+        }
+
+        return c;
     }
-List<Integer> idUserList = new ArrayList<>();
+});
+    }
+List<String> idUserList = new ArrayList<>();
 
 private void loadTable() {
+    // Buat model tabel dengan kolom "No" di awal, "IDUser" disembunyikan nanti
     DefaultTableModel model = new DefaultTableModel(
-        new Object[]{"IDUser", "NamaUser", "Username", "Password", "Email", "Telephone", "Level"}, 0
+        new Object[]{"No", "IDUser", "Nama User", "Username", "Password", "Email", "Telephone", "Role"}, 0
     );
     jTable.setModel(model);
 
@@ -39,9 +76,11 @@ private void loadTable() {
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT IDUser, NamaUser, Username, Password, Email, NoHp, Level FROM user")) {
 
+        int no = 1;
         while (rs.next()) {
             model.addRow(new Object[]{
-                rs.getString("IDUser"),  // Diubah dari "IDuser" ke "IDUser"
+                no++,                              // Kolom No
+                rs.getString("IDUser"),            // Kolom IDUser (disembunyikan di bawah)
                 rs.getString("NamaUser"),
                 rs.getString("Username"),
                 rs.getString("Password"),
@@ -54,9 +93,15 @@ private void loadTable() {
         System.out.println("Error saat mengambil data: " + e.getMessage());
         e.printStackTrace();
     }
+
+    // 🔒 Sembunyikan kolom IDUser dari tampilan, tetap tersedia di model
+    jTable.getColumnModel().getColumn(1).setMinWidth(0);
+    jTable.getColumnModel().getColumn(1).setMaxWidth(0);
+    jTable.getColumnModel().getColumn(1).setWidth(0);
 }
 
-private Map<String, String> getUserDataFromDatabase(int idUser) {
+
+private Map<String, String> getUserDataFromDatabase(String idUser) {
     Map<String, String> userData = new HashMap<>();
     System.out.println("Mencari user dengan ID: " + idUser);
 
@@ -65,11 +110,11 @@ private Map<String, String> getUserDataFromDatabase(int idUser) {
     try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
          PreparedStatement pst = conn.prepareStatement(query)) {
 
-        pst.setInt(1, idUser);
+        pst.setString(1, idUser);  // <-- pakai setString bukan setInt
 
         try (ResultSet rs = pst.executeQuery()) {
             if (rs.next()) {
-                userData.put("IDUser", String.valueOf(rs.getInt("IDUser")));
+                userData.put("IDUser", rs.getString("IDUser"));  // ambil langsung string
                 userData.put("NamaUser", rs.getString("NamaUser"));
                 userData.put("Username", rs.getString("Username"));
                 userData.put("Password", rs.getString("Password"));
@@ -92,6 +137,7 @@ private Map<String, String> getUserDataFromDatabase(int idUser) {
 
     return userData;
 }
+
 
 
 
@@ -199,20 +245,24 @@ private void showEditDialog(Map<String, String> userData) {
         jTable = new javax.swing.JTable();
         BtHapus = new javax.swing.JButton();
         BtEdit = new javax.swing.JButton();
+        jSeparator8 = new javax.swing.JSeparator();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        LbTanggal = new javax.swing.JLabel();
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID User", "Nama", "Username", "Password", "Email", "Telephone", "Level"
+                "No", "ID User", "Nama", "Username", "Password", "Email", "Telephone", "Role"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -221,6 +271,9 @@ private void showEditDialog(Map<String, String> userData) {
         });
         jScrollPane1.setViewportView(jTable);
 
+        BtHapus.setBackground(new java.awt.Color(255, 0, 0));
+        BtHapus.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BtHapus.setForeground(new java.awt.Color(255, 255, 255));
         BtHapus.setText("HAPUS");
         BtHapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -228,6 +281,9 @@ private void showEditDialog(Map<String, String> userData) {
             }
         });
 
+        BtEdit.setBackground(new java.awt.Color(255, 199, 18));
+        BtEdit.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BtEdit.setForeground(new java.awt.Color(255, 255, 255));
         BtEdit.setText("EDIT");
         BtEdit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -235,32 +291,54 @@ private void showEditDialog(Map<String, String> userData) {
             }
         });
 
+        jLabel17.setText("Admin > Data Manajemen Akun");
+
+        jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel19.setText("Akun Kasir");
+
+        LbTanggal.setText("Hari Tanggal");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSeparator8, javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(BtHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(BtEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)))
-                .addGap(14, 14, 14))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel17)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE))
+                        .addGap(14, 14, 14))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(LbTanggal)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addComponent(jLabel17)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(LbTanggal, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(BtHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(BtEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
-                .addGap(91, 91, 91))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                .addGap(24, 24, 24))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -315,20 +393,16 @@ if (selectedRow != -1) {
 
     private void BtEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtEditActionPerformed
 int selectedRow = jTable.getSelectedRow();
-    
-if (selectedRow == -1) {
-    JOptionPane.showMessageDialog(this, 
-        "Pilih baris data yang akan diedit terlebih dahulu",
-        "Peringatan",
-        JOptionPane.WARNING_MESSAGE);
-    return;
-}
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this,
+            "Pilih baris data yang akan diedit terlebih dahulu",
+            "Peringatan",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-try {
-    // Get the ID from selected row (column index 0 for IDUser)
-    Object idValue = jTable.getValueAt(selectedRow, 0);
-    
-    // Validate and convert ID
+    Object idValue = jTable.getValueAt(selectedRow, 1);
+
     if (idValue == null) {
         JOptionPane.showMessageDialog(this,
             "ID User tidak valid (null)",
@@ -336,21 +410,10 @@ try {
             JOptionPane.ERROR_MESSAGE);
         return;
     }
-    
-    int idUser;
-    try {
-        idUser = Integer.parseInt(idValue.toString());
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this,
-            "Format ID User tidak valid",
-            "Error",
-            JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // Get complete user data from database
+
+    String idUser = idValue.toString();  // Simpan sebagai String
+
     Map<String, String> userData = getUserDataFromDatabase(idUser);
-    
     if (userData.isEmpty()) {
         JOptionPane.showMessageDialog(this,
             "Data user dengan ID " + idUser + " tidak ditemukan di database",
@@ -358,28 +421,22 @@ try {
             JOptionPane.ERROR_MESSAGE);
         return;
     }
-    
-    // Show edit dialog with the user data
+
+    // Panggil dialog edit
     showEditDialog(userData);
-    
-    // Refresh table after editing
     refreshTableData();
-    
-} catch (Exception e) {
-    JOptionPane.showMessageDialog(this,
-        "Terjadi kesalahan: " + e.getMessage(),
-        "Error",
-        JOptionPane.ERROR_MESSAGE);
-    e.printStackTrace();
-}
     }//GEN-LAST:event_BtEditActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtEdit;
     private javax.swing.JButton BtHapus;
+    private javax.swing.JLabel LbTanggal;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator8;
     private javax.swing.JTable jTable;
     // End of variables declaration//GEN-END:variables
 }

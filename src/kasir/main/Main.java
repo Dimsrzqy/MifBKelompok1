@@ -98,7 +98,12 @@ public class Main extends JLayeredPane{
                 FormMenuUtama.showForm(new kategori());
             }
         }else if(index == 5){
+            if(subIndex == 1){
                 FormMenuUtama.showForm(new PanelDataPenjualan());
+            }
+            if(subIndex == 2){
+                
+            }
         }
         else if(index == 6){
             FormMenuUtama.logout();
