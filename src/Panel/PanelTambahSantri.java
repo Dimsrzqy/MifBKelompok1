@@ -43,14 +43,14 @@ public PanelTambahSantri(PanelDataSantri panelInduk) {
 }
 
     public String generateIdPengguna() {
-        String prefix = "SNTR-";
+        String prefix = "SNTR";
         int nextNumber = 1;
 
         String url = "jdbc:mysql://localhost:3306/koperasi_nuris";
         String user = "root";
         String pass = "";
 
-        String query = "SELECT MAX(CAST(SUBSTRING(IDPengguna, 6) AS UNSIGNED)) AS max_id FROM pengguna WHERE IDPengguna LIKE 'SNTR-%'";
+        String query = "SELECT MAX(CAST(SUBSTRING(IDPengguna, 6) AS UNSIGNED)) AS max_id FROM pengguna WHERE IDPengguna LIKE 'SNTR%'";
 
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement stmt = conn.prepareStatement(query);

@@ -31,7 +31,7 @@ import java.sql.*;
 
 
 public class PanelDataPenjualan extends javax.swing.JPanel {
-    private PaginationTable paginationTable;
+   
     
     
     public PanelDataPenjualan() {
@@ -68,11 +68,13 @@ public class PanelDataPenjualan extends javax.swing.JPanel {
     }
 });
 
-        
+        TxKeuntungan.setEditable(false);
+        jDateAwal.enableInputMethods(false);
+        jDateAkhir.enableInputMethods(false);
     }
     
     public void tampildata(){
-        TxKeuntungan.setEditable(false);
+        
     }
     
     
@@ -354,8 +356,10 @@ private void tampilkanTransaksiUtama() {
             }
         });
 
+        jDateAwal.setBackground(new java.awt.Color(255, 255, 255));
         jDateAwal.setBorder(javax.swing.BorderFactory.createTitledBorder("Tampilkan Dari"));
 
+        jDateAkhir.setBackground(new java.awt.Color(255, 255, 255));
         jDateAkhir.setBorder(javax.swing.BorderFactory.createTitledBorder("Sampai"));
 
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
@@ -381,16 +385,14 @@ private void tampilkanTransaksiUtama() {
                         .addComponent(BtDetail, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(BtRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(TxKeuntungan, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(BtFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(37, 37, 37)
+                        .addGap(29, 29, 29)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel16Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jDateAkhir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jDateAwal, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jDateAkhir, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                            .addComponent(jDateAwal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel16Layout.setVerticalGroup(
@@ -398,7 +400,6 @@ private void tampilkanTransaksiUtama() {
             .addGroup(jPanel16Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel17)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel16Layout.createSequentialGroup()
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
