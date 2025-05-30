@@ -43,36 +43,36 @@ public class PanelDataSantri extends javax.swing.JPanel {
     
 public PanelDataSantri() {
     initComponents();
-    loadTable();// Memuat data ke dalam tabel
+    loadTable();
+    
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
     LbTanggal.setText(LocalDate.now().format(dtf));
- 
-        JTableHeader header = jTable.getTableHeader();
-        header.setBackground(new Color(28, 69, 50)); // biru tua
-        header.setForeground(Color.WHITE);           // teks putih
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        
-        jTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-        boolean isSelected, boolean hasFocus, int row, int column) {
 
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    setupRFIDListener(); // <--- WAJIB DIPANGGIL DI SINI !!!
 
-        if (!isSelected) {
-            if (row % 2 == 0) {
-                c.setBackground(Color.WHITE); // baris genap
+    JTableHeader header = jTable.getTableHeader();
+    header.setBackground(new Color(28, 69, 50));
+    header.setForeground(Color.WHITE);
+    header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+    jTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (!isSelected) {
+                c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
             } else {
-                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+                c.setBackground(new Color(41, 157, 145));
             }
-        } else {
-            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
-        }
 
-        return c;
-    }
-});
+            return c;
+        }
+    });
 }
+
 
 
 private void setupRFIDListener() {
@@ -133,16 +133,26 @@ private void processRFIDScan(String rfid) {
 }
 
 private void showDetailPopup(String noRFID, String nama, double saldo, double nominal) {
-    PanelMutasi mutasiPanel = new PanelMutasi(noRFID);  // PASTIKAN ini yang dipakai
+    PanelMutasi mutasiPanel = new PanelMutasi(noRFID);
 
-    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Detail Mutasi Santri", Dialog.ModalityType.APPLICATION_MODAL);
+    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "PanelMutasi", Dialog.ModalityType.APPLICATION_MODAL);
     dialog.getContentPane().add(mutasiPanel);
     dialog.pack();
-    dialog.setLocationRelativeTo(this);
+    dialog.setLocationRelativeTo(null);  // posisi di tengah layar
     dialog.setVisible(true);
 
-    // tambahkan listener jika perlu untuk refresh table utama saat popup ditutup
+    dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosed(java.awt.event.WindowEvent e) {
+            loadTable();  // jika perlu refresh
+        }
+        @Override
+        public void windowClosing(java.awt.event.WindowEvent e) {
+            loadTable();
+        }
+    });
 }
+
 
  public void loadTable() {
         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
@@ -341,39 +351,44 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
     }// </editor-fold>//GEN-END:initComponents
 
     private void BtHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtHapusActionPerformed
-         int selectedRow = jTable.getSelectedRow(); // Ambil baris yang dipilih
+int selectedRow = jTable.getSelectedRow();
 
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus terlebih dahulu.", "Peringatan", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus terlebih dahulu.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+    return;
+}
 
-    // Ambil nilai NoRFID dari baris yang dipilih
-    String noRFID = jTable.getValueAt(selectedRow, 2).toString(); // Kolom ke-1 adalah NoRFID
+// Asumsikan kolom ke-2 adalah NoRFID (indeks 2 berarti kolom ke-3)
+String noRFID = jTable.getValueAt(selectedRow, 2).toString();
 
-    int confirm = JOptionPane.showConfirmDialog(this,
-        "Apakah Anda yakin ingin menghapus data dengan RFID: " + noRFID + "?",
-        "Konfirmasi Hapus",
-        JOptionPane.YES_NO_OPTION);
+int confirm = JOptionPane.showConfirmDialog(
+    this,
+    "Apakah Anda yakin ingin menghapus data dengan RFID: " + noRFID + "?",
+    "Konfirmasi Hapus",
+    JOptionPane.YES_NO_OPTION
+);
 
-    if (confirm == JOptionPane.YES_OPTION) {
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM pengguna WHERE NoRFID = ?")) {
+if (confirm == JOptionPane.YES_OPTION) {
+    String sql = "DELETE FROM pengguna WHERE NoRFID = ?";
 
-            stmt.setString(1, noRFID);
-            int affectedRows = stmt.executeUpdate();
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if (affectedRows > 0) {
-                JOptionPane.showMessageDialog(this, "Data berhasil dihapus.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                loadTable(); // Refresh tabel
-            } else {
-                JOptionPane.showMessageDialog(this, "Data tidak ditemukan atau gagal dihapus.", "Gagal", JOptionPane.ERROR_MESSAGE);
-            }
+        stmt.setString(1, noRFID);
+        int rowsDeleted = stmt.executeUpdate();
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (rowsDeleted > 0) {
+            JOptionPane.showMessageDialog(this, "Data berhasil dihapus.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            loadTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Data tidak ditemukan atau sudah dihapus sebelumnya.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
         }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Kesalahan saat menghapus: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
+
     }//GEN-LAST:event_BtHapusActionPerformed
 
     private void btTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btTambahActionPerformed
