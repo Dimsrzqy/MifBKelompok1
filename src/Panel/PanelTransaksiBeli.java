@@ -32,12 +32,12 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         barcode.setText(newBarcode);
     } catch (SQLException e) {
         e.printStackTrace();
-        barcode.setText("899123456001"); // Default jika error
+        barcode.setText(""); // Default jika error
         JOptionPane.showMessageDialog(this, "Gagal generate barcode: " + e.getMessage(), 
             "Error", JOptionPane.ERROR_MESSAGE);
     } catch (Exception e) {
         e.printStackTrace();
-        barcode.setText("899123456001"); // Default jika error lain
+        barcode.setText(""); // Default jika error lain
     }
     }
     

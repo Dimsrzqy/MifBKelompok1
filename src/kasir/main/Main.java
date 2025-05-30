@@ -11,6 +11,8 @@ import Panel.PanelManajemenBarang;
 import Panel.PanelTabungan;
 import Panel.PanelTransaksiBeli;
 import Panel.PanelTransaksiJual;
+import Panel.kategori;
+import Panel.stok;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
@@ -75,7 +77,7 @@ public class Main extends JLayeredPane{
             if(subIndex == 2){
                 FormMenuUtama.showForm(new PanelTransaksiJual());
                 
-            } 
+            }   
         }else if(index == 2){
             if(subIndex == 1){
                 FormMenuUtama.showForm(new PanelDataSantri());
@@ -88,6 +90,12 @@ public class Main extends JLayeredPane{
         else if(index == 4){
             if(subIndex == 1){
                 FormMenuUtama.showForm(new PanelManajemenBarang());
+            }
+            if(subIndex == 2){
+                FormMenuUtama.showForm(new stok());
+            }
+            if(subIndex == 3){
+                FormMenuUtama.showForm(new kategori());
             }
         }else if(index == 5){
                 FormMenuUtama.showForm(new PanelDataPenjualan());

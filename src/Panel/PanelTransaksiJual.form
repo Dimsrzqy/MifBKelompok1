@@ -290,13 +290,13 @@
                               <Component id="BtCari" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
                               <Component id="CbMetodePembayaran" min="-2" pref="183" max="-2" attributes="0"/>
-                              <EmptySpace pref="122" max="32767" attributes="0"/>
-                              <Component id="txNamaProduk" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                              <Component id="txJumlah" min="-2" pref="109" max="-2" attributes="0"/>
+                              <EmptySpace pref="42" max="32767" attributes="0"/>
                               <Component id="txHargaSatuan" min="-2" pref="50" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="txJumlah" min="-2" pref="49" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="txNamaProduk" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="btTambah" min="-2" pref="77" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -309,11 +309,13 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="CbMetodePembayaran" alignment="1" min="-2" pref="38" max="-2" attributes="0"/>
+                          <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                              <Component id="CbMetodePembayaran" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
+                              <Component id="txJumlah" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
+                          </Group>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="BtCari" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
                               <Component id="txHargaSatuan" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
-                              <Component id="txJumlah" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
                               <Component id="txBarcode" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
                               <Component id="btTambah" alignment="3" min="-2" pref="39" max="-2" attributes="0"/>
                               <Component id="txNamaProduk" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
