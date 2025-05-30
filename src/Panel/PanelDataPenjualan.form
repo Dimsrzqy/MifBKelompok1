@@ -66,12 +66,12 @@
                           <Component id="BtRefresh" min="-2" pref="100" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="TxKeuntungan" min="-2" pref="251" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="BtFilter" min="-2" pref="100" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jDateAkhir" pref="146" max="32767" attributes="0"/>
-                              <Component id="jDateAwal" max="32767" attributes="0"/>
+                              <Component id="jDateAwal" pref="138" max="32767" attributes="0"/>
+                              <Component id="jDateAkhir" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>

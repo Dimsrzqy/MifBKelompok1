@@ -35,6 +35,12 @@ import javax.swing.table.JTableHeader;
 public class PanelDataSantri extends javax.swing.JPanel {
 
     private Container PanelTambahSantri;
+    private javax.swing.Timer searchTimer;
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/koperasi_nuris";
+    private static final String DB_USER = "root";
+    private static final String DB_PASS = "";
+    private static final int MIN_RFID_LENGTH = 5;
+    
 public PanelDataSantri() {
     initComponents();
     loadTable();// Memuat data ke dalam tabel
@@ -66,6 +72,76 @@ public PanelDataSantri() {
         return c;
     }
 });
+}
+
+
+private void setupRFIDListener() {
+    searchTimer = new javax.swing.Timer(150, e -> {
+        String rfid = txCariRFid.getText().trim();
+        if (rfid.length() >= MIN_RFID_LENGTH) {
+            processRFIDScan(rfid);
+        }
+    });
+    searchTimer.setRepeats(false);
+
+    txCariRFid.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+        @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { searchTimer.restart(); }
+        @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { searchTimer.restart(); }
+        @Override public void changedUpdate(javax.swing.event.DocumentEvent e) {}
+    });
+}
+
+
+// Di panel utama atau class yang scan RFID
+private void processRFIDScan(String rfid) {
+    String query = "SELECT NamaPengguna, NoRFID, SaldoMasuk, SaldoKeluar, Saldo, JenisTransaksi, Tanggal " +
+                   "FROM mutasi WHERE NoRFID = ? ORDER BY Tanggal DESC LIMIT 1";
+
+    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, rfid);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                String namaPengguna = rs.getString("NamaPengguna");
+                String noRFID = rs.getString("NoRFID");
+                double saldoMasuk = rs.getDouble("SaldoMasuk");
+                double saldoKeluar = rs.getDouble("SaldoKeluar");
+                double saldo = rs.getDouble("Saldo");
+                String jenisTransaksi = rs.getString("JenisTransaksi");
+                java.sql.Timestamp tanggal = rs.getTimestamp("Tanggal");
+
+                // Misal nominal 0 atau bisa kamu atur sendiri
+                double nominal = 0;
+
+                showDetailPopup(noRFID, namaPengguna, saldo, nominal);
+                txCariRFid.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "RFID tidak terdaftar pada mutasi",
+                    "Data Tidak Ditemukan",
+                    JOptionPane.WARNING_MESSAGE);
+                txCariRFid.setText("");
+            }
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this,
+            "Error database: " + ex.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void showDetailPopup(String noRFID, String nama, double saldo, double nominal) {
+    PanelMutasi mutasiPanel = new PanelMutasi(noRFID);  // PASTIKAN ini yang dipakai
+
+    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Detail Mutasi Santri", Dialog.ModalityType.APPLICATION_MODAL);
+    dialog.getContentPane().add(mutasiPanel);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
+
+    // tambahkan listener jika perlu untuk refresh table utama saat popup ditutup
 }
 
  public void loadTable() {
@@ -118,6 +194,7 @@ public PanelDataSantri() {
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         LbTanggal = new javax.swing.JLabel();
+        txCariRFid = new javax.swing.JTextField();
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -159,6 +236,8 @@ public PanelDataSantri() {
 
         LbTanggal.setText("Hari Tanggal");
 
+        txCariRFid.setBorder(javax.swing.BorderFactory.createTitledBorder("Cari RFID"));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -175,7 +254,7 @@ public PanelDataSantri() {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jSeparator7))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 590, Short.MAX_VALUE)
                                 .addComponent(LbTanggal)
                                 .addContainerGap())))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -183,6 +262,8 @@ public PanelDataSantri() {
                             .addComponent(jSeparator8)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(txCariRFid, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
                                 .addComponent(BtHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -190,7 +271,7 @@ public PanelDataSantri() {
                         .addContainerGap())))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 850, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -219,10 +300,15 @@ public PanelDataSantri() {
                         .addComponent(LbTanggal)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BtHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(BtHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txCariRFid, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 343, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(267, 267, 267))
@@ -319,5 +405,6 @@ try {
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JSeparator jSeparator8;
     private javax.swing.JTable jTable;
+    private javax.swing.JTextField txCariRFid;
     // End of variables declaration//GEN-END:variables
 }

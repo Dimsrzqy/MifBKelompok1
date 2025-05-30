@@ -10,8 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.Date;
 import javax.swing.JOptionPane;
 import java.sql.PreparedStatement;
+import java.text.SimpleDateFormat;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
@@ -253,36 +255,91 @@ try {
 try {
     // Ambil data dari form
     String noRFID = TxRFID.getText().trim();
+    String namaPenggunaBaru = TxNama.getText().trim();  // Pastikan ada input nama pengguna di form
     String saldoStr = TxSaldo.getText().trim();
-    double saldoBaru = parseRupiah(saldoStr); // Pastikan parseRupiah tersedia
+    double saldoBaru = parseRupiah(saldoStr); // Fungsi parseRupiah harus mengubah format Rupiah ke double
 
     // Koneksi ke database
     java.sql.Connection conn = DriverManager.getConnection(
         "jdbc:mysql://localhost:3306/koperasi_nuris", "root", ""
     );
 
-    // Query update saldo
-    String sql = "UPDATE pengguna SET Saldo = ?, TanggalUpdate = NOW() WHERE NoRFID = ?";
-    PreparedStatement stmt = conn.prepareStatement(sql);
-    stmt.setDouble(1, saldoBaru);
-    stmt.setString(2, noRFID);
+    // Ambil data pengguna lama berdasarkan NoRFID
+    String queryOld = "SELECT IDPengguna, NamaPengguna, Saldo FROM pengguna WHERE NoRFID = ?";
+    PreparedStatement stmtOld = conn.prepareStatement(queryOld);
+    stmtOld.setString(1, noRFID);
+    ResultSet rs = stmtOld.executeQuery();
 
-    int barisTerpengaruh = stmt.executeUpdate();
+    if (rs.next()) {
+        // Ambil IDPengguna sebagai String karena formatnya non-numeric (misal 'SNTR-0020')
+        String idPengguna = rs.getString("IDPengguna");
+        String namaPenggunaLama = rs.getString("NamaPengguna");
+        double saldoLama = rs.getDouble("Saldo");
 
-    if (barisTerpengaruh > 0) {
-        JOptionPane.showMessageDialog(this, "Saldo berhasil diperbarui!");
+        // Hitung mutasi masuk/keluar dan jenis transaksi
+        double saldoMasuk = 0;
+        double saldoKeluar = 0;
+        String jenisTransaksi = "";
 
-        // ✅ Tutup jendela popup (PanelDetailTabungan)
-        Window window = SwingUtilities.getWindowAncestor(this);
-        if (window != null) {
-            window.dispose(); // Ini akan memicu refresh jika listener ditambahkan
+        if (saldoBaru > saldoLama) {
+            saldoMasuk = saldoBaru - saldoLama;
+            jenisTransaksi = "Setor";
+        } else if (saldoBaru < saldoLama) {
+            saldoKeluar = saldoLama - saldoBaru;
+            jenisTransaksi = "Tarik";
+        } else {
+            jenisTransaksi = "Tidak Berubah";
         }
+
+        // Update data pengguna (nama dan saldo)
+        String sqlUpdate = "UPDATE pengguna SET NamaPengguna = ?, Saldo = ?, TanggalUpdate = NOW() WHERE NoRFID = ?";
+        PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate);
+        stmtUpdate.setString(1, namaPenggunaBaru);
+        stmtUpdate.setDouble(2, saldoBaru);
+        stmtUpdate.setString(3, noRFID);
+
+        int barisTerpengaruh = stmtUpdate.executeUpdate();
+
+        if (barisTerpengaruh > 0) {
+            // Insert mutasi jika ada perubahan saldo
+            if (!jenisTransaksi.equals("Tidak Berubah")) {
+                String insertMutasi = "INSERT INTO mutasi (IDMutasi, IDPengguna, NamaPengguna, NoRFID, SaldoMasuk, SaldoKeluar, Saldo, JenisTransaksi, Tanggal) " +
+                                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+
+                String tanggal = new SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+                String idMutasi = String.format("MT%s%04d", tanggal, (int)(Math.random() * 10000));
+
+                PreparedStatement stmtMutasi = conn.prepareStatement(insertMutasi);
+                stmtMutasi.setString(1, idMutasi);
+                stmtMutasi.setString(2, idPengguna);           // <-- ganti setInt jadi setString
+                stmtMutasi.setString(3, namaPenggunaBaru);
+                stmtMutasi.setString(4, noRFID);
+                stmtMutasi.setDouble(5, saldoMasuk);
+                stmtMutasi.setDouble(6, saldoKeluar);
+                stmtMutasi.setDouble(7, saldoBaru);
+                stmtMutasi.setString(8, jenisTransaksi);
+                stmtMutasi.executeUpdate();
+                stmtMutasi.close();
+            }
+
+            JOptionPane.showMessageDialog(this, "Data pengguna dan saldo berhasil diperbarui!");
+
+            // Tutup jendela popup
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.dispose();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Gagal memperbarui data pengguna!");
+        }
+
+        stmtUpdate.close();
     } else {
-        JOptionPane.showMessageDialog(this, "Gagal memperbarui saldo. RFID tidak ditemukan!");
+        JOptionPane.showMessageDialog(this, "Pengguna dengan RFID tersebut tidak ditemukan!");
     }
 
-    // Tutup koneksi
-    stmt.close();
+    rs.close();
+    stmtOld.close();
     conn.close();
 
 } catch (NumberFormatException ex) {
