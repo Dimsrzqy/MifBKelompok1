@@ -42,31 +42,27 @@ public class PanelDataPenjualan extends javax.swing.JPanel {
         LbTanggal.setText(LocalDate.now().format(dtf));
         tampilkanTransaksiUtama();
         
-        JTableHeader header = TbDataPenjualan.getTableHeader();
-        header.setBackground(new Color(28, 69, 50)); // biru tua
-        header.setForeground(Color.WHITE);           // teks putih
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        
-        TbDataPenjualan.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-        boolean isSelected, boolean hasFocus, int row, int column) {
+    JTableHeader header = TbDataPenjualan.getTableHeader();
+    header.setBackground(new Color(28, 69, 50));
+    header.setForeground(Color.WHITE);
+    header.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    TbDataPenjualan.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
 
-        if (!isSelected) {
-            if (row % 2 == 0) {
-                c.setBackground(Color.WHITE); // baris genap
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (!isSelected) {
+                c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
             } else {
-                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+                c.setBackground(new Color(41, 157, 145));
             }
-        } else {
-            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
-        }
 
-        return c;
-    }
-});
+            return c;
+        }
+    });
 
         TxKeuntungan.setEditable(false);
         jDateAwal.enableInputMethods(false);
