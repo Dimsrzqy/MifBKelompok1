@@ -42,7 +42,7 @@ public class PanelDataPenjualan extends javax.swing.JPanel {
         LbTanggal.setText(LocalDate.now().format(dtf));
         tampilkanTransaksiUtama();
         
-JTableHeader header = TbDataPenjualan.getTableHeader();
+    JTableHeader header = TbDataPenjualan.getTableHeader();
     header.setBackground(new Color(28, 69, 50));
     header.setForeground(Color.WHITE);
     header.setFont(new Font("Segoe UI", Font.BOLD, 14));

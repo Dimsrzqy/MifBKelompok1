@@ -3,8 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package Panel;
-
-import Panel.PopupTambahStok;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Window;
@@ -17,20 +15,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.table.TableModel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  *
  * @author ASUS Vivobook
  */
 public class stok extends javax.swing.JPanel {
-
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/koperasi_nuris";
-    private static final String DB_USER = "root";
-    private static final String DB_PASS = "";
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     /**
      * Creates new form stok
@@ -39,88 +28,80 @@ public class stok extends javax.swing.JPanel {
         initComponents();
         tampilDatastok();
     }
-
-    public static Connection getConnection() {
-        Connection conn = null;
-        try {
-            String url = "jdbc:mysql://localhost:3306/koperasi_nuris";
-            String user = "root"; // atau user lain
-            String pass = "";     // password MySQL kamu
-
-            conn = DriverManager.getConnection(url, user, pass);
-        } catch (SQLException e) {
-            System.out.println("Koneksi gagal: " + e.getMessage());
-        }
-        return conn;
-    }
-
+    
     private void bukaPopupTambahStok() {
-        int selectedRow = tabel_stok.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Pilih data yang akan diedit terlebih dahulu!",
-                    "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Ambil data dari baris yang dipilih
-        Map<String, String> stokData = new HashMap<>();
-        stokData.put("NamaBarang", tabel_stok.getValueAt(selectedRow, 0).toString());
-        stokData.put("JumlahMasuk", tabel_stok.getValueAt(selectedRow, 1).toString());
-        stokData.put("JumlahKeluar", tabel_stok.getValueAt(selectedRow, 2).toString());
-        stokData.put("TanggalUpdate", tabel_stok.getValueAt(selectedRow, 3).toString());
-        stokData.put("TanggalKadaluarsa", tabel_stok.getValueAt(selectedRow, 4).toString());
-        stokData.put("Kategori", tabel_stok.getValueAt(selectedRow, 5).toString());
-
-        // Buka popup edit dengan data yang dipilih
-        bukaPopupEditStok(stokData);
+    int selectedRow = tabel_stok.getSelectedRow();
+    
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Pilih data yang akan diedit terlebih dahulu!");
+        return;
     }
-
+    
+    // Ambil data dari baris yang dipilih
+    Map<String, String> stokData = new HashMap<>();
+    stokData.put("IDBarang", tabel_stok.getValueAt(selectedRow, 0).toString());
+    stokData.put("NamaBarang", tabel_stok.getValueAt(selectedRow, 1).toString());
+    stokData.put("JumlahMasuk", tabel_stok.getValueAt(selectedRow, 2).toString());
+    stokData.put("JumlahKeluar", tabel_stok.getValueAt(selectedRow, 3).toString());
+    stokData.put("TanggalUpdate", tabel_stok.getValueAt(selectedRow, 4).toString());
+    stokData.put("TanggalKadaluarsa", tabel_stok.getValueAt(selectedRow, 5).toString());
+    
+    // Buka popup edit dengan data yang dipilih
+    bukaPopupEditStok(stokData);
+}
+    
     private void bukaPopupEditStok(Map<String, String> stokData) {
-        PopupTambahStok panel = new PopupTambahStok(stokData);
+    PopupTambahStok panel = new PopupTambahStok(stokData);
+    
+    // Set listener untuk refresh tabel setelah edit
+    panel.setDataSavedListener(() -> {
+        tampilDatastok();
+    });
 
-        panel.setDataSavedListener(() -> {
-            tampilDatastok();
-        });
+    JDialog dialog = new JDialog((JFrame) null, "Edit Stok", true);
+    dialog.getContentPane().add(panel);
+    dialog.pack();
+    dialog.setLocationRelativeTo(null);
+    dialog.setVisible(true);
+}
 
-        JDialog dialog = new JDialog((JFrame) null, "Edit Stok", true);
-        dialog.getContentPane().add(panel);
-        dialog.pack();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
-    }
-
+    
     public void tampilDatastok() {
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Nama Barang");
-        model.addColumn("Jumlah Masuk");
-        model.addColumn("Jumlah Keluar");
-        model.addColumn("Tanggal Update");
-        model.addColumn("Kadaluarsa");
-        model.addColumn("Kategori");
+    DefaultTableModel model = new DefaultTableModel();
+    model.addColumn("ID Barang"); 
+    model.addColumn("Nama Barang");
+    model.addColumn("Jumlah Masuk");
+    model.addColumn("Jumlah Keluar");
+    model.addColumn("Tanggal Update");
+    model.addColumn("Kadaluarsa");
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(
-                "SELECT b.NamaBarang, s.JumlahMasuk, s.JumlahKeluar, "
-                + "s.TanggalUpdate, s.TanggalKadaluarsa, k.NamaKategori "
-                + "FROM barang b JOIN stok s ON s.IDBarang = b.IDBarang "
-                + "JOIN kategori k ON k.IDKategori = b.IDKategori")) {
+    try {
+        // Ganti sesuai koneksi database kamu
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
+        Statement stmt = conn.createStatement();
+        // Menggabungkan tabel stok dan barang berdasarkan IDBarang
+        String sql = "SELECT s.IDBarang, b.NamaBarang, s.JumlahMasuk, s.JumlahKeluar, s.TanggalUpdate, s.TanggalKadaluarsa " +
+                     "FROM stok s " +
+                     "JOIN barang b ON s.IDBarang = b.IDBarang";
+        ResultSet rs = stmt.executeQuery(sql);
 
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getString("NamaBarang"),
-                    rs.getInt("JumlahMasuk"),
-                    rs.getInt("JumlahKeluar"),
-                    rs.getDate("TanggalUpdate"), // Added TanggalUpdate
-                    rs.getDate("TanggalKadaluarsa"), // Added TanggalKadaluarsa
-                    rs.getString("NamaKategori")
-                });
-            }
-
-            tabel_stok.setModel(model);
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("IDBarang"),
+                rs.getString("NamaBarang"),
+                rs.getInt("JumlahMasuk"),
+                rs.getInt("JumlahKeluar"),
+                rs.getDate("TanggalUpdate"),
+                rs.getDate("TanggalKadaluarsa")
+            });
         }
+
+        tabel_stok.setModel(model);
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -133,9 +114,7 @@ public class stok extends javax.swing.JPanel {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_stok = new javax.swing.JTable();
-        BtnHapus = new javax.swing.JButton();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
+        Edit = new javax.swing.JButton();
 
         tabel_stok.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -150,140 +129,42 @@ public class stok extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_stok);
 
-        BtnHapus.setBackground(new java.awt.Color(255, 0, 0));
-        BtnHapus.setText("Hapus");
-        BtnHapus.addActionListener(new java.awt.event.ActionListener() {
+        Edit.setBackground(new java.awt.Color(0, 153, 0));
+        Edit.setText("Edit ");
+        Edit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BtnHapusActionPerformed(evt);
+                EditActionPerformed(evt);
             }
         });
-
-        jLabel17.setText("Admin > Manajemen Barang");
-
-        jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel18.setText("STOK");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel17)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(BtnHapus))))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 820, Short.MAX_VALUE))
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Edit)
+                .addGap(123, 123, 123))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 826, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel17)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel18)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 463, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(BtnHapus))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addComponent(Edit)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void BtnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnHapusActionPerformed
-        // Pastikan ada baris yang dipilih di tabel
-        int selectedRow = tabel_stok.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Pilih barang yang akan dihapus terlebih dahulu!",
-                    "Peringatan",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Konfirmasi penghapusan
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Apakah Anda yakin ingin menghapus barang ini?",
-                "Konfirmasi Hapus",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
-
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        // Ambil Nama Barang dari kolom pertama (kolom 0)
-        DefaultTableModel model = (DefaultTableModel) tabel_stok.getModel();
-        String namaBarang = model.getValueAt(selectedRow, 0).toString().trim();
-
-        try (Connection conn = stok.getConnection()) {
-            // Langkah 1: Ambil IDStok berdasarkan NamaBarang
-            String selectSql = "SELECT s.IDStok "
-                    + "FROM stok s "
-                    + "JOIN barang b ON s.IDBarang = b.IDBarang "
-                    + "WHERE b.NamaBarang = ?";
-
-            String idStok = null;
-            try (PreparedStatement selectPst = conn.prepareStatement(selectSql)) {
-                selectPst.setString(1, namaBarang);
-                ResultSet rs = selectPst.executeQuery();
-                if (rs.next()) {
-                    idStok = rs.getString("IDStok");
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Data stok tidak ditemukan!",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-
-            // Langkah 2: Hapus data dari tabel stok
-            String deleteSql = "DELETE FROM stok WHERE IDStok = ?";
-            try (PreparedStatement deletePst = conn.prepareStatement(deleteSql)) {
-                deletePst.setString(1, idStok);
-                int affectedRows = deletePst.executeUpdate();
-
-                if (affectedRows > 0) {
-                    JOptionPane.showMessageDialog(this,
-                            "Data stok berhasil dihapus!",
-                            "Sukses",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    // Refresh tabel setelah penghapusan
-                    tampilDatastok();
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Gagal menghapus data stok!",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error database: " + e.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_BtnHapusActionPerformed
+    private void EditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditActionPerformed
+    bukaPopupTambahStok();
+    
+    }//GEN-LAST:event_EditActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BtnHapus;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
+    private javax.swing.JButton Edit;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabel_stok;
     // End of variables declaration//GEN-END:variables

@@ -333,15 +333,10 @@ public class PopupEditManBarang extends javax.swing.JPanel {
 
             // Parse dan validasi data
             String namaBarang = data.get("NamaBarang");
-            String hargaBeliStr = data.get("HargaBeli").replace("Rp", "").trim();
-            String hargaJualStr = data.get("HargaJual").replace("Rp", "").trim();
-
-            double hargaBeliDouble = Double.parseDouble(hargaBeliStr);
-            double hargaJualDouble = Double.parseDouble(hargaJualStr);
-
-            int hargaBeli = (int) hargaBeliDouble;
-            int hargaJual = (int) hargaJualDouble;
-
+            String hargaBeliStr = data.get("HargaBeli").replaceAll("[^\\d]", "");
+            String hargaJualStr = data.get("HargaJual").replaceAll("[^\\d]", "");
+            int hargaBeli = Integer.parseInt(hargaBeliStr);
+            int hargaJual = Integer.parseInt(hargaJualStr);
             String tanggalMasuk = parseTanggal(data.get("TanggalMasuk"));
             String kadaluarsa = parseTanggal(data.get("Kadaluarsa")); // ⬅️ ambil tanggal kadaluarsa dari form
             String barcode = data.get("Barcode");
