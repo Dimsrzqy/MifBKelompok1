@@ -362,7 +362,7 @@ int selectedRow = jTable.getSelectedRow();
 
 if (selectedRow != -1) {
     DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-    String idUser = model.getValueAt(selectedRow, 0).toString(); // Ambil IDUser kolom ke-0
+    String idUser = model.getValueAt(selectedRow, 1).toString(); // Ambil IDUser kolom ke-0
 
     int konfirmasi = JOptionPane.showConfirmDialog(this,
             "Yakin ingin menghapus data user dengan IDUser '" + idUser + "'?",
