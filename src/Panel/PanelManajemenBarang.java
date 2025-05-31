@@ -23,8 +23,6 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -37,116 +35,13 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
      */
     public PanelManajemenBarang() {
         initComponents();
-        txBarcode.setText("");
         tampilkanDataBarang();
         JTableHeader header = tabel_barang.getTableHeader();
         header.setBackground(new Color(0, 102, 204)); // biru tua
         header.setForeground(Color.WHITE);           // teks putih
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
-    
-    private void cariBarangByBarcode() {
-        checkBarcode();
-    }
-    public void removeUpdate(DocumentEvent e) {
-        checkBarcode();
-    }
-    public void insertUpdate(DocumentEvent e) {
-        checkBarcode();
-    }
 
-    private void checkBarcode() {
-        String barcode = txBarcode.getText().trim();
-        if (barcode.isEmpty()) {
-            tampilkanDataBarang(); // 🔁 Tampilkan semua data jika barcode dikosongkan
-        }
-
-    if (barcode.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Masukkan barcode terlebih dahulu.");
-        return;
-    }
-
-    try (Connection conn = Koneksi.getConnection()) {
-        String sql = "SELECT b.*, k.NamaKategori AS nama_kategori, "
-                   + "s.JumlahMasuk, s.JumlahKeluar, s.TanggalKadaluarsa "
-                   + "FROM barang b "
-                   + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
-                   + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang "
-                   + "WHERE b.Barcode = ?";
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, barcode);
-        ResultSet rs = ps.executeQuery();
-
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("No");
-        model.addColumn("ID Barang");
-        model.addColumn("Nama Barang");
-        model.addColumn("Kategori");
-        model.addColumn("Stok");
-        model.addColumn("Harga Beli");
-        model.addColumn("Harga Jual");
-        model.addColumn("Tanggal Kadaluarsa");
-        model.addColumn("Tanggal Masuk");
-        model.addColumn("Barcode");
-
-        int no = 1;
-        while (rs.next()) {
-            String idBarang = rs.getString("IDBarang");
-            if (!idBarang.toUpperCase().startsWith("BRG")) {
-                try {
-                    int angka = Integer.parseInt(idBarang);
-                    idBarang = String.format("BRG%03d", angka);
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
-            }
-
-            String stok = "-";
-            try {
-                int masuk = rs.getInt("JumlahMasuk");
-                int keluar = rs.getInt("JumlahKeluar");
-                stok = String.valueOf(masuk - keluar);
-            } catch (Exception e) {
-                stok = "-";
-            }
-
-            String kadaluarsa = rs.getDate("TanggalKadaluarsa") != null
-                    ? rs.getDate("TanggalKadaluarsa").toString()
-                    : "-";
-
-            String tanggalMasuk = rs.getDate("TanggalMasuk") != null
-                    ? rs.getDate("TanggalMasuk").toString()
-                    : "-";
-
-            model.addRow(new Object[]{
-                no++, idBarang, rs.getString("NamaBarang"),
-                rs.getString("nama_kategori"), stok,
-                rs.getDouble("HargaBeli"), rs.getDouble("HargaJual"),
-                kadaluarsa, tanggalMasuk, rs.getString("Barcode")
-            });
-        }
-
-        if (model.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Data tidak ditemukan untuk barcode: " + barcode);
-        }
-
-        tabel_barang.setModel(model);
-        // Sembunyikan kolom No & ID Barang
-        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
-        tabel_barang.getColumnModel().getColumn(0).setWidth(0);
-
-        tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setWidth(0);
-
-    } catch (SQLException ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Kesalahan database: " + ex.getMessage());
-    }
-}
-    
     private void loadStokData() {
         try (Connection conn = Koneksi.getConnection()) {
             String query
@@ -269,9 +164,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     res.getString("Barcode")
                 });
             }
-            
-             if (model.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Data tidak ditemukan untuk barcode: " + txBarcode); }
 
             tabel_barang.setModel(model);
             // Sembunyikan kolom "No" (index 0) dan "ID Barang" (index 1)
@@ -397,6 +289,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         BtnHapus = new javax.swing.JButton();
         edit = new javax.swing.JButton();
+        BtCari = new javax.swing.JButton();
         txBarcode = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
@@ -422,6 +315,14 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         edit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editActionPerformed(evt);
+            }
+        });
+
+        BtCari.setBackground(new java.awt.Color(255, 230, 0));
+        BtCari.setText("Cari");
+        BtCari.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BtCariActionPerformed(evt);
             }
         });
 
@@ -459,10 +360,13 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(BtCari))
                             .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel17))
-                        .addContainerGap(814, Short.MAX_VALUE))
+                        .addContainerGap(736, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1)
@@ -485,6 +389,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(BtnHapus)
+                    .addComponent(BtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
@@ -583,12 +488,26 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         tampilkanDataBarang(); // Refresh data
     }//GEN-LAST:event_editActionPerformed
 
+    private void BtCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtCariActionPerformed
+        JDialogCariBRG popup = new JDialogCariBRG();
+        popup.setModal(true);
+        popup.setLocationRelativeTo(this);
+        popup.setVisible(true); // tunggu dialog ditutup baru lanjut
+
+        // Setelah dialog ditutup:
+        String idBarang = popup.getSelectedBarang();
+        if (idBarang != null) {
+            getBarangDataFromDatabase(idBarang);
+        }
+    }//GEN-LAST:event_BtCariActionPerformed
+
     private void txBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txBarcodeActionPerformed
-         cariBarangByBarcode();
+        // TODO add your handling code here:
     }//GEN-LAST:event_txBarcodeActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BtCari;
     private javax.swing.JButton BtnHapus;
     private javax.swing.JButton edit;
     private javax.swing.JCheckBox jCheckBox1;
