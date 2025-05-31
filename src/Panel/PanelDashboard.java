@@ -20,6 +20,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import java.awt.Color;
 import java.awt.BasicStroke;
+import org.jfree.chart.renderer.category.BarRenderer;
 
 
 public class PanelDashboard extends javax.swing.JPanel {
@@ -29,8 +30,9 @@ public class PanelDashboard extends javax.swing.JPanel {
         initComponents();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
         LbTanggal.setText(LocalDate.now().format(dtf));
-        CbFilter.setSelectedIndex(0);
-        tampilkanChartPenjualan("7 Hari Terakhir");
+        CbFilterPenjualan.setSelectedIndex(0);
+        tampilkanChartPenjualan("4 Hari Terakhir");
+        tampilkanChartKeuntungan("4 Hari Terakhir");
         
     }
     private void tampilkanChartPenjualan(String filter) {
@@ -38,10 +40,10 @@ public class PanelDashboard extends javax.swing.JPanel {
     String sql = "";
 
     switch (filter) {
-        case "7 Hari Terakhir":
+        case "4 Hari Terakhir":
             sql = "SELECT DATE(TanggalJual) AS Label, SUM(TotalHarga) AS Total " +
                   "FROM transaksi_jual " +
-                  "WHERE TanggalJual >= CURDATE() - INTERVAL 7 DAY " +
+                  "WHERE TanggalJual >= CURDATE() - INTERVAL 4 DAY " +
                   "GROUP BY DATE(TanggalJual) ORDER BY TanggalJual";
             break;
 
@@ -51,6 +53,16 @@ public class PanelDashboard extends javax.swing.JPanel {
                   "WHERE TanggalJual >= CURDATE() - INTERVAL 4 WEEK " +
                   "GROUP BY YEARWEEK(TanggalJual, 1)";
             break;
+            
+        case "12 Bulan Terakhir":
+        sql = "SELECT DATE_FORMAT(TanggalJual, '%Y-%m') AS Label, SUM(TotalHarga) AS Total " +
+              "FROM transaksi_jual " +
+              "WHERE TanggalJual >= CURDATE() - INTERVAL 12 MONTH " +
+              "GROUP BY DATE_FORMAT(TanggalJual, '%Y-%m') " +
+              "ORDER BY TanggalJual";
+        break;
+        
+        
     }
 
     try (Connection conn = connect.getConnection();
@@ -85,14 +97,86 @@ public class PanelDashboard extends javax.swing.JPanel {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(600, 300));
 
-        PanelChart.removeAll();
-        PanelChart.setLayout(new BorderLayout());
-        PanelChart.add(chartPanel, BorderLayout.CENTER);
-        PanelChart.revalidate();
-        PanelChart.repaint();
+        PanelChartPenjualan.removeAll();
+        PanelChartPenjualan.setLayout(new BorderLayout());
+        PanelChartPenjualan.add(chartPanel, BorderLayout.CENTER);
+        PanelChartPenjualan.revalidate();
+        PanelChartPenjualan.repaint();
 
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Gagal menampilkan chart: " + e.getMessage());
+    }
+}
+    
+    
+    private void tampilkanChartKeuntungan(String filter) {
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    String sql = "";
+
+    switch (filter) {
+        case "4 Hari Terakhir":
+            sql = "SELECT DATE(TanggalJual) AS Label, SUM(Bayar - TotalHarga) AS TotalKeuntungan " +
+                  "FROM transaksi_jual " +
+                  "WHERE TanggalJual >= CURDATE() - INTERVAL 4 DAY " +
+                  "GROUP BY DATE(TanggalJual) ORDER BY TanggalJual";
+            break;
+
+        case "4 Minggu Terakhir":
+            sql = "SELECT YEARWEEK(TanggalJual, 1) AS Label, SUM(Bayar - TotalHarga) AS TotalKeuntungan " +
+                  "FROM transaksi_jual " +
+                  "WHERE TanggalJual >= CURDATE() - INTERVAL 4 WEEK " +
+                  "GROUP BY YEARWEEK(TanggalJual, 1)";
+            break;
+
+        case "12 Bulan Terakhir":
+            sql = "SELECT DATE_FORMAT(TanggalJual, '%Y-%m') AS Label, SUM(Bayar - TotalHarga) AS TotalKeuntungan " +
+                  "FROM transaksi_jual " +
+                  "WHERE TanggalJual >= CURDATE() - INTERVAL 12 MONTH " +
+                  "GROUP BY DATE_FORMAT(TanggalJual, '%Y-%m') " +
+                  "ORDER BY TanggalJual";
+            break;
+    }
+
+    try (Connection conn = connect.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        while (rs.next()) {
+            String label = rs.getString("Label");
+            double total = rs.getDouble("TotalKeuntungan");
+            dataset.addValue(total, "Total Keuntungan", label);
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Grafik Keuntungan - " + filter,
+                filter.contains("Bulan") ? "Bulan" : (filter.contains("Minggu") ? "Minggu" : "Tanggal"),
+                "Total Keuntungan",
+                dataset
+        );
+
+        CategoryPlot plot = chart.getCategoryPlot();
+        BarRenderer renderer = new BarRenderer();
+
+        renderer.setSeriesPaint(0, new Color(76, 175, 80)); // Hijau untuk keuntungan
+        plot.setRenderer(renderer);
+
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+        chart.setBackgroundPaint(Color.WHITE);
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(600, 300));
+
+        PanelChartKeuntungan.removeAll();
+        PanelChartKeuntungan.setLayout(new BorderLayout());
+        PanelChartKeuntungan.add(chartPanel, BorderLayout.CENTER);
+        PanelChartKeuntungan.revalidate();
+        PanelChartKeuntungan.repaint();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Gagal menampilkan chart keuntungan: " + e.getMessage());
     }
 }
 
@@ -102,26 +186,28 @@ public class PanelDashboard extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel16 = new javax.swing.JPanel();
-        PanelChart = new javax.swing.JPanel();
+        PanelChartPenjualan = new javax.swing.JPanel();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jSeparator6 = new javax.swing.JSeparator();
         LbTanggal = new javax.swing.JLabel();
-        CbFilter = new javax.swing.JComboBox<>();
+        CbFilterPenjualan = new javax.swing.JComboBox<>();
+        PanelChartKeuntungan = new javax.swing.JPanel();
+        CbFilterKeuntungan = new javax.swing.JComboBox<>();
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
 
-        PanelChart.setBackground(new java.awt.Color(204, 204, 204));
+        PanelChartPenjualan.setBackground(new java.awt.Color(204, 204, 204));
 
-        javax.swing.GroupLayout PanelChartLayout = new javax.swing.GroupLayout(PanelChart);
-        PanelChart.setLayout(PanelChartLayout);
-        PanelChartLayout.setHorizontalGroup(
-            PanelChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout PanelChartPenjualanLayout = new javax.swing.GroupLayout(PanelChartPenjualan);
+        PanelChartPenjualan.setLayout(PanelChartPenjualanLayout);
+        PanelChartPenjualanLayout.setHorizontalGroup(
+            PanelChartPenjualanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        PanelChartLayout.setVerticalGroup(
-            PanelChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+        PanelChartPenjualanLayout.setVerticalGroup(
+            PanelChartPenjualanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 290, Short.MAX_VALUE)
         );
 
         jLabel17.setText("Admin > Dashboard");
@@ -131,10 +217,30 @@ public class PanelDashboard extends javax.swing.JPanel {
 
         LbTanggal.setText("Hari Tanggal");
 
-        CbFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "7 Hari Terakhir", "4 Minggu Terakhir" }));
-        CbFilter.addActionListener(new java.awt.event.ActionListener() {
+        CbFilterPenjualan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "4 Hari Terakhir", "4 Minggu Terakhir", "12 Bulan Terakhir" }));
+        CbFilterPenjualan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                CbFilterActionPerformed(evt);
+                CbFilterPenjualanActionPerformed(evt);
+            }
+        });
+
+        PanelChartKeuntungan.setBackground(new java.awt.Color(204, 204, 204));
+
+        javax.swing.GroupLayout PanelChartKeuntunganLayout = new javax.swing.GroupLayout(PanelChartKeuntungan);
+        PanelChartKeuntungan.setLayout(PanelChartKeuntunganLayout);
+        PanelChartKeuntunganLayout.setHorizontalGroup(
+            PanelChartKeuntunganLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 460, Short.MAX_VALUE)
+        );
+        PanelChartKeuntunganLayout.setVerticalGroup(
+            PanelChartKeuntunganLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        CbFilterKeuntungan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "4 Hari Terakhir", "4 Minggu Terakhir", "12 Bulan Terakhir" }));
+        CbFilterKeuntungan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CbFilterKeuntunganActionPerformed(evt);
             }
         });
 
@@ -142,22 +248,30 @@ public class PanelDashboard extends javax.swing.JPanel {
         jPanel16.setLayout(jPanel16Layout);
         jPanel16Layout.setHorizontalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSeparator6)
-            .addComponent(PanelChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel16Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel16Layout.createSequentialGroup()
-                        .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 553, Short.MAX_VALUE)
-                        .addComponent(LbTanggal))
+                        .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel16Layout.createSequentialGroup()
+                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(LbTanggal))
+                            .addGroup(jPanel16Layout.createSequentialGroup()
+                                .addComponent(jLabel17)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addComponent(jSeparator6)
                     .addGroup(jPanel16Layout.createSequentialGroup()
-                        .addComponent(jLabel17)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(CbFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(CbFilterKeuntungan, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(PanelChartKeuntungan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(PanelChartPenjualan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel16Layout.createSequentialGroup()
+                                .addGap(0, 291, Short.MAX_VALUE)
+                                .addComponent(CbFilterPenjualan, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))))))
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -170,11 +284,15 @@ public class PanelDashboard extends javax.swing.JPanel {
                     .addComponent(LbTanggal))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(75, 75, 75)
-                .addComponent(CbFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(215, 215, 215)
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(CbFilterPenjualan, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(CbFilterKeuntungan, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(PanelChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(136, 136, 136))
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelChartKeuntungan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PanelChartPenjualan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -192,7 +310,9 @@ public class PanelDashboard extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -200,21 +320,33 @@ public class PanelDashboard extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void CbFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbFilterActionPerformed
-       CbFilter.addActionListener(new ActionListener() {
+    private void CbFilterPenjualanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbFilterPenjualanActionPerformed
+       CbFilterPenjualan.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-        String filter = CbFilter.getSelectedItem().toString();
+        String filter = CbFilterPenjualan.getSelectedItem().toString();
         tampilkanChartPenjualan(filter);
     }
         });
+       
+       
+    }//GEN-LAST:event_CbFilterPenjualanActionPerformed
 
-    }//GEN-LAST:event_CbFilterActionPerformed
+    private void CbFilterKeuntunganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CbFilterKeuntunganActionPerformed
+        CbFilterKeuntungan.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+        String filter = CbFilterKeuntungan.getSelectedItem().toString();
+        tampilkanChartKeuntungan(filter);
+    }
+        });
+    }//GEN-LAST:event_CbFilterKeuntunganActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> CbFilter;
+    private javax.swing.JComboBox<String> CbFilterKeuntungan;
+    private javax.swing.JComboBox<String> CbFilterPenjualan;
     private javax.swing.JLabel LbTanggal;
-    private javax.swing.JPanel PanelChart;
+    private javax.swing.JPanel PanelChartKeuntungan;
+    private javax.swing.JPanel PanelChartPenjualan;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JPanel jPanel1;

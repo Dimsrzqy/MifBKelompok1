@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package Panel;
-import Panel.PopupTambahStok;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Window;
@@ -16,9 +15,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.table.TableModel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 /**
  *
  * @author ASUS Vivobook
@@ -43,12 +39,12 @@ public class stok extends javax.swing.JPanel {
     
     // Ambil data dari baris yang dipilih
     Map<String, String> stokData = new HashMap<>();
-    stokData.put("NamaBarang", tabel_stok.getValueAt(selectedRow, 0).toString());
-    stokData.put("JumlahMasuk", tabel_stok.getValueAt(selectedRow, 1).toString());
-    stokData.put("JumlahKeluar", tabel_stok.getValueAt(selectedRow, 2).toString());
-    stokData.put("TanggalUpdate", tabel_stok.getValueAt(selectedRow, 3).toString());
-    stokData.put("TanggalKadaluarsa", tabel_stok.getValueAt(selectedRow, 4).toString());
-    stokData.put("Kategori", tabel_stok.getValueAt(selectedRow, 5).toString());
+    stokData.put("IDBarang", tabel_stok.getValueAt(selectedRow, 0).toString());
+    stokData.put("NamaBarang", tabel_stok.getValueAt(selectedRow, 1).toString());
+    stokData.put("JumlahMasuk", tabel_stok.getValueAt(selectedRow, 2).toString());
+    stokData.put("JumlahKeluar", tabel_stok.getValueAt(selectedRow, 3).toString());
+    stokData.put("TanggalUpdate", tabel_stok.getValueAt(selectedRow, 4).toString());
+    stokData.put("TanggalKadaluarsa", tabel_stok.getValueAt(selectedRow, 5).toString());
     
     // Buka popup edit dengan data yang dipilih
     bukaPopupEditStok(stokData);
@@ -72,54 +68,40 @@ public class stok extends javax.swing.JPanel {
     
     public void tampilDatastok() {
     DefaultTableModel model = new DefaultTableModel();
+    model.addColumn("ID Barang"); 
     model.addColumn("Nama Barang");
     model.addColumn("Jumlah Masuk");
     model.addColumn("Jumlah Keluar");
     model.addColumn("Tanggal Update");
     model.addColumn("Kadaluarsa");
-    model.addColumn("Kategori");
-    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 
     try {
-        
         // Ganti sesuai koneksi database kamu
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
         Statement stmt = conn.createStatement();
         // Menggabungkan tabel stok dan barang berdasarkan IDBarang
-        String sql = "SELECT b.NamaBarang, s.JumlahMasuk, s.JumlahKeluar, s.TanggalUpdate, s.TanggalKadaluarsa, k.NamaKategori " +
-                     "FROM barang b " +
-                     "JOIN stok s ON s.IDBarang = b.IDBarang JOIN kategori k ON k.IDKategori = b.IDKategori";
+        String sql = "SELECT s.IDBarang, b.NamaBarang, s.JumlahMasuk, s.JumlahKeluar, s.TanggalUpdate, s.TanggalKadaluarsa " +
+                     "FROM stok s " +
+                     "JOIN barang b ON s.IDBarang = b.IDBarang";
         ResultSet rs = stmt.executeQuery(sql);
 
-while (rs.next()) {
-    String tanggalUpdate = "";
-    String tanggalKadaluarsa = "";
-
-    Date tglUpdate = rs.getDate("TanggalUpdate");
-    if (tglUpdate != null) {
-        tanggalUpdate = sdf.format(tglUpdate);
-    }
-
-    Date tglKadaluarsa = rs.getDate("TanggalKadaluarsa");
-    if (tglKadaluarsa != null) {
-        tanggalKadaluarsa = sdf.format(tglKadaluarsa);
-    }
-
-    model.addRow(new Object[]{
-        rs.getString("NamaBarang"),
-        rs.getInt("JumlahMasuk"),
-        rs.getInt("JumlahKeluar"),
-        tanggalUpdate,
-        tanggalKadaluarsa,
-        rs.getString("NamaKategori"),
-    });
-}
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("IDBarang"),
+                rs.getString("NamaBarang"),
+                rs.getInt("JumlahMasuk"),
+                rs.getInt("JumlahKeluar"),
+                rs.getDate("TanggalUpdate"),
+                rs.getDate("TanggalKadaluarsa")
+            });
+        }
 
         tabel_stok.setModel(model);
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -130,12 +112,9 @@ while (rs.next()) {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_stok = new javax.swing.JTable();
         Edit = new javax.swing.JButton();
-
-        jLabel1.setText("STOK");
 
         tabel_stok.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -162,26 +141,19 @@ while (rs.next()) {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 532, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(34, 34, 34)
-                        .addComponent(Edit)))
-                .addContainerGap(170, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(Edit)
+                .addGap(123, 123, 123))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 826, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Edit)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(169, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addComponent(Edit)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -193,7 +165,6 @@ while (rs.next()) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Edit;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabel_stok;
     // End of variables declaration//GEN-END:variables

@@ -5,7 +5,7 @@
 package Panel;
 
 import java.sql.*;
-import Panel.TambahStokKategori;
+import Panel.TambahKategori;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
@@ -23,7 +23,7 @@ public class kategori extends javax.swing.JPanel {
         initComponents();
         tampilDatakategori();
     }
-  
+
     public void tampilDatakategori() {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Id Kategori");
@@ -57,13 +57,18 @@ public class kategori extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        Tambah = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_kategori = new javax.swing.JTable();
-        Tambah = new javax.swing.JButton();
-        Hapus = new javax.swing.JButton();
 
-        jLabel1.setText("KATEGORI");
+        Tambah.setBackground(new java.awt.Color(0, 153, 0));
+        Tambah.setText("Tambah");
+        Tambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TambahActionPerformed(evt);
+            }
+        });
 
         tabel_kategori.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -78,54 +83,39 @@ public class kategori extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_kategori);
 
-        Tambah.setBackground(new java.awt.Color(0, 153, 0));
-        Tambah.setText("Tambah");
-        Tambah.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TambahActionPerformed(evt);
-            }
-        });
-
-        Hapus.setBackground(new java.awt.Color(255, 0, 51));
-        Hapus.setText("Hapus");
-        Hapus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                HapusActionPerformed(evt);
-            }
-        });
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(699, Short.MAX_VALUE)
+                .addComponent(Tambah)
+                .addContainerGap())
+            .addComponent(jScrollPane1)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addComponent(Tambah)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Tambah)
-                    .addComponent(Hapus)))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(Tambah)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Hapus)))
-                .addContainerGap(89, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void TambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TambahActionPerformed
-        TambahStokKategori tambah = new TambahStokKategori();
+        TambahKategori tambah = new TambahKategori();
         JDialog dialog = new JDialog((JFrame) null, "Edit Kategori", true);
         dialog.getContentPane().add(tambah);
         dialog.pack();
@@ -136,42 +126,10 @@ public class kategori extends javax.swing.JPanel {
         tampilDatakategori(); // Ini jalan setelah dialog ditutup
     }//GEN-LAST:event_TambahActionPerformed
 
-    private void HapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusActionPerformed
-        int selectedRow = tabel_kategori.getSelectedRow();
-
-    if (selectedRow == -1) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus terlebih dahulu.");
-        return;
-    }
-      String idKategori = tabel_kategori.getValueAt(selectedRow, 0).toString(); // Kolom pertama = ID
-      
-      int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(this,
-            "Apakah kamu yakin ingin menghapus kategori dengan ID: " + idKategori + "?",
-            "Konfirmasi Hapus", javax.swing.JOptionPane.YES_NO_OPTION);
-
-    if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
-        try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
-            String sql = "DELETE FROM kategori WHERE IDKategori = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, idKategori);
-            pstmt.executeUpdate();
-
-            javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil dihapus.");
-            tampilDatakategori(); // Refresh data di tabel
-        } catch (Exception e) {
-            e.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus data.");
-        }
-    }
-
-    }//GEN-LAST:event_HapusActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Hapus;
     private javax.swing.JButton Tambah;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tabel_kategori;
     // End of variables declaration//GEN-END:variables

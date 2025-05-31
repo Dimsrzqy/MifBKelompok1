@@ -1,7 +1,7 @@
 package Panel;
 
 import Form.connect;
-import javax.swing.*;
+import javax.swing.*; 
 import java.awt.*;
 import java.sql.*;
 
