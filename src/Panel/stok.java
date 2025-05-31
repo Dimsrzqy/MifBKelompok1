@@ -5,7 +5,9 @@
 package Panel;
 
 import Panel.PopupTambahStok;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Window;
 import java.sql.*;
@@ -20,6 +22,7 @@ import java.util.Map;
 import javax.swing.table.TableModel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -38,6 +41,10 @@ public class stok extends javax.swing.JPanel {
     public stok() {
         initComponents();
         tampilDatastok();
+        JTableHeader header = tabel_stok.getTableHeader();
+        header.setBackground(new Color(0, 102, 204)); // biru tua
+        header.setForeground(Color.WHITE);           // teks putih
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
 
     public static Connection getConnection() {
@@ -168,17 +175,15 @@ public class stok extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel17)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel17)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(BtnHapus))))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 820, Short.MAX_VALUE))
+                        .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 740, Short.MAX_VALUE)
+                        .addComponent(BtnHapus)))
                 .addContainerGap())
+            .addComponent(jScrollPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,11 +193,12 @@ public class stok extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(BtnHapus)
+                        .addContainerGap(545, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel18)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 463, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(BtnHapus))
-                .addContainerGap(21, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
