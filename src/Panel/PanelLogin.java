@@ -254,6 +254,7 @@ try {
         String levelStr = rs.getString("Level");
         String nama = rs.getString("NamaUser");
         UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
+        FormMenuUtama.login(levelStr);
 
         if (levelStr == null) {
             JOptionPane.showMessageDialog(new JFrame(), "Level kosong", "Error", JOptionPane.ERROR_MESSAGE);

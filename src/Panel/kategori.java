@@ -7,11 +7,14 @@ package Panel;
 import java.sql.*;
 import Panel.TambahStokKategori;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -27,10 +30,32 @@ public class kategori extends javax.swing.JPanel {
     public kategori() {
         initComponents();
         tampilDatakategori();
+        
         JTableHeader header = tabel_kategori.getTableHeader();
-        header.setBackground(new Color(0, 102, 204)); // biru tua
+        header.setBackground(new Color(28, 69, 50)); // biru tua
         header.setForeground(Color.WHITE);           // teks putih
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+     tabel_kategori.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(Color.WHITE); // baris genap
+            } else {
+                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+            }
+        } else {
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
+        }
+
+        return c;
+    }
+});
         
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
         LbTanggal.setText(LocalDate.now().format(dtf));
@@ -78,6 +103,8 @@ public class kategori extends javax.swing.JPanel {
         jSeparator8 = new javax.swing.JSeparator();
         LbTanggal = new javax.swing.JLabel();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         tabel_kategori.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null},
@@ -91,7 +118,7 @@ public class kategori extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_kategori);
 
-        Tambah.setBackground(new java.awt.Color(0, 153, 0));
+        Tambah.setBackground(new java.awt.Color(28, 69, 50));
         Tambah.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         Tambah.setForeground(new java.awt.Color(255, 255, 255));
         Tambah.setText("Tambah");

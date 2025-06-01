@@ -220,6 +220,8 @@ private void simpanData() {
         jLabel14 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         cbxJenisKelamin.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "laki laki", "Perempuan" }));
 
         cbxAsrama.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Putra Pusat", "Putra SMK", "Nuris 3", "Nuris 4", "Dalbar", "Daltim", "Tahfidz" }));

@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 /**
@@ -48,10 +49,31 @@ public class stok extends javax.swing.JPanel {
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
     LbTanggal.setText(LocalDate.now().format(dtf));
     
-    JTableHeader header = tabel_stok.getTableHeader();
-    header.setBackground(new Color(0, 102, 204)); // biru tua
-    header.setForeground(Color.WHITE);           // teks putih
-    header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        JTableHeader header = tabel_stok.getTableHeader();
+        header.setBackground(new Color(28, 69, 50)); // biru tua
+        header.setForeground(Color.WHITE);           // teks putih
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        tabel_stok.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(Color.WHITE); // baris genap
+            } else {
+                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+            }
+        } else {
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
+        }
+
+        return c;
+    }
+});
 
     // Event saat mengetik di TxCari
     txCari.getDocument().addDocumentListener(new DocumentListener() {
@@ -188,6 +210,8 @@ private void filterDataStok() {
         txCari = new javax.swing.JTextField();
         jSeparator8 = new javax.swing.JSeparator();
         LbTanggal = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(255, 255, 255));
 
         tabel_stok.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
