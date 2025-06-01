@@ -109,10 +109,10 @@ public class Main extends JLayeredPane{
                     }
                 }else if(index == 5){
                     if(subIndex == 1){
-                        FormMenuUtama.showForm(new PanelDataPenjualan());
+                        FormMenuUtama.showForm(new PanelDataPembelian());
                     }
                     if(subIndex == 2){
-                        FormMenuUtama.showForm(new PanelDataPembelian());
+                        FormMenuUtama.showForm(new PanelDataPenjualan());
                     }
                 }
                 else if(index == 6){

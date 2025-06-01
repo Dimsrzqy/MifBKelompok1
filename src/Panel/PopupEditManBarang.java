@@ -374,6 +374,11 @@ public class PopupEditManBarang extends javax.swing.JPanel {
 
                 JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
                 FormMenuUtama.showForm(new PanelManajemenBarang());
+
+                // Tambahan: Menutup popup form
+                if (parentDialog != null) {
+                parentDialog.dispose();
+                }  
             } catch (SQLException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Gagal memperbarui data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

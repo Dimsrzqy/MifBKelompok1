@@ -1,6 +1,7 @@
 package Panel;
 
 import java.sql.Connection;
+import Form.connect;    
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Date;
@@ -14,6 +15,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 
 
@@ -26,6 +30,32 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         LbTanggal.setText(LocalDate.now().format(dtf));
         txNoTransaksi.setText(generateNoTransaksi());
         loadKategori();
+        
+        JTableHeader header = tbTransaksi.getTableHeader();
+        header.setBackground(new Color(28, 69, 50)); // biru tua
+        header.setForeground(Color.WHITE);           // teks putih
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        tbTransaksi.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(Color.WHITE); // baris genap
+            } else {
+                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+            }
+        } else {
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
+        }
+
+        return c;
+    }
+});
     }
     
     private void tampilkanNamaKasir() {
@@ -56,7 +86,7 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         return;
     }
 
-    try (Connection conn = kasir.main.PanelTransaksiBeli.Koneksi.getConnection()) {
+    try (Connection conn = connect.getConnection()) {
         conn.setAutoCommit(false); // Mulai transaksi
 
         double hargaBeli = Double.parseDouble(hargaBeliStr);
@@ -141,7 +171,7 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Pastikan harga dan stok berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
     } catch (SQLException e) {
         try {
-            Connection conn = kasir.main.PanelTransaksiBeli.Koneksi.getConnection();
+            Connection conn = connect.getConnection();
             conn.rollback(); // Gagal salah satu, rollback semua
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -164,7 +194,7 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
     
     public void loadKategori() {
         try {
-            Connection con = kasir.main.PanelTransaksiBeli.Koneksi.getConnection(); // pastikan ini method bukan variabel
+            Connection con = connect.getConnection(); // pastikan ini method bukan variabel
             String sql = "SELECT NamaKategori FROM kategori";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -197,7 +227,7 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         txNamaKasir = new javax.swing.JTextField();
         txNamaProduk = new javax.swing.JTextField();
         CbKategori = new javax.swing.JComboBox<>();
-        btn_simpan = new javax.swing.JButton();
+        btn_Tambah = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbTransaksi = new javax.swing.JTable();
         jDateKadaluarsa = new com.toedter.calendar.JDateChooser();
@@ -208,7 +238,7 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         BtCari = new javax.swing.JButton();
         txBarcode = new javax.swing.JTextField();
         btHapus = new javax.swing.JButton();
-        btBeli = new javax.swing.JButton();
+        btSimpan = new javax.swing.JButton();
 
         PanelPembelian.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -242,8 +272,8 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
             }
         });
 
-        btn_simpan.setBackground(new java.awt.Color(255, 204, 0));
-        btn_simpan.setText("Simpan");
+        btn_Tambah.setBackground(new java.awt.Color(255, 204, 0));
+        btn_Tambah.setText("Tambah");
 
         tbTransaksi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -281,15 +311,16 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
         btHapus.setForeground(new java.awt.Color(255, 255, 255));
         btHapus.setText("Hapus");
 
-        btBeli.setBackground(new java.awt.Color(13, 87, 48));
-        btBeli.setForeground(new java.awt.Color(255, 255, 255));
-        btBeli.setText("Beli");
+        btSimpan.setBackground(new java.awt.Color(13, 87, 48));
+        btSimpan.setForeground(new java.awt.Color(255, 255, 255));
+        btSimpan.setText("Simpan");
 
         javax.swing.GroupLayout PanelPembelianLayout = new javax.swing.GroupLayout(PanelPembelian);
         PanelPembelian.setLayout(PanelPembelianLayout);
         PanelPembelianLayout.setHorizontalGroup(
             PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator6)
+            .addComponent(jScrollPane1)
             .addGroup(PanelPembelianLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -299,43 +330,41 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
                         .addComponent(LbTanggal))
                     .addGroup(PanelPembelianLayout.createSequentialGroup()
                         .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jDateKadaluarsa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(PanelPembelianLayout.createSequentialGroup()
-                                .addGap(149, 149, 149)
-                                .addComponent(BtCari)
-                                .addGap(426, 426, 426)
-                                .addComponent(btn_simpan)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
-                        .addComponent(CbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(315, 315, 315))
-                    .addGroup(PanelPembelianLayout.createSequentialGroup()
-                        .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel17)
                             .addGroup(PanelPembelianLayout.createSequentialGroup()
-                                .addGap(53, 53, 53)
-                                .addComponent(btHapus)
-                                .addGap(28, 28, 28)
-                                .addComponent(btBeli))
-                            .addGroup(PanelPembelianLayout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(txNoTransaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txNamaKasir, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(PanelPembelianLayout.createSequentialGroup()
+                                        .addComponent(txJumlah, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jDateKadaluarsa, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btn_Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(265, 265, 265))
+                                    .addGroup(PanelPembelianLayout.createSequentialGroup()
+                                        .addComponent(txNoTransaksi, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(txNamaKasir, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(txBarcode, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(BtCari, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)))
+                                .addGap(18, 18, 18)
+                                .addComponent(txNamaProduk, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txHargaBeli, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txHargaBeli, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txHargaJual, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txHargaJual, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txStok, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txStok, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(CbKategori, 0, 104, Short.MAX_VALUE))
+                            .addGroup(PanelPembelianLayout.createSequentialGroup()
+                                .addComponent(btSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(43, 43, 43)))
                 .addContainerGap())
-            .addComponent(jScrollPane1)
         );
         PanelPembelianLayout.setVerticalGroup(
             PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,31 +387,21 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
                     .addComponent(txStok, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txNamaProduk, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PanelPembelianLayout.createSequentialGroup()
-                        .addGap(165, 165, 165)
-                        .addComponent(btHapus))
-                    .addGroup(PanelPembelianLayout.createSequentialGroup()
-                        .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(PanelPembelianLayout.createSequentialGroup()
-                                .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(PanelPembelianLayout.createSequentialGroup()
-                                        .addGap(97, 97, 97)
-                                        .addComponent(btn_simpan))
-                                    .addGroup(PanelPembelianLayout.createSequentialGroup()
-                                        .addGap(51, 51, 51)
-                                        .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(CbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(BtCari))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelPembelianLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
-                                .addComponent(jDateKadaluarsa, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(78, 78, 78)))
-                        .addComponent(btBeli)))
-                .addGap(27, 27, 27)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(CbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
+                .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jDateKadaluarsa, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                        .addComponent(txJumlah))
+                    .addComponent(btn_Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelPembelianLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -415,9 +434,9 @@ public class PanelTransaksiBeli extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> CbKategori;
     private javax.swing.JLabel LbTanggal;
     private javax.swing.JPanel PanelPembelian;
-    private javax.swing.JButton btBeli;
     private javax.swing.JButton btHapus;
-    private javax.swing.JButton btn_simpan;
+    private javax.swing.JButton btSimpan;
+    private javax.swing.JButton btn_Tambah;
     private com.toedter.calendar.JDateChooser jDateKadaluarsa;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;

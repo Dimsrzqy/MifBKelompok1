@@ -162,7 +162,7 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
         String user = "root";
         String pass = "";
 
-        String query = "SELECT NamaPengguna, NoRFID, JenisKelamin, Asrama, Lembaga, Saldo, TanggalUpdate FROM pengguna";
+        String query = "SELECT NamaPengguna, NoRFID, JenisKelamin, Asrama, Lembaga, TanggalUpdate FROM pengguna";
 
         try (Connection conn = DriverManager.getConnection(url, user, pass);
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -176,7 +176,6 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
                     rs.getString("JenisKelamin"),
                     rs.getString("Asrama"),
                     rs.getString("Lembaga"),
-                    rs.getBigDecimal("Saldo"),
                     rs.getDate("TanggalUpdate")
                 });
             }
@@ -208,18 +207,19 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "No", "Nama", "RFID", "Jenis Kelamin", "Asrama", "Lembaga", "Saldo", "Tanggal Update"
+                "No", "Nama", "RFID", "Jenis Kelamin", "Asrama", "Lembaga", "Tanggal Update"
             }
         ));
         jScrollPane1.setViewportView(jTable);
 
         BtHapus.setBackground(new java.awt.Color(255, 0, 0));
+        BtHapus.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         BtHapus.setForeground(new java.awt.Color(255, 255, 255));
         BtHapus.setText("HAPUS");
         BtHapus.addActionListener(new java.awt.event.ActionListener() {
@@ -229,6 +229,7 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
         });
 
         btTambah.setBackground(new java.awt.Color(28, 69, 50));
+        btTambah.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btTambah.setForeground(new java.awt.Color(255, 255, 255));
         btTambah.setText("TAMBAH");
         btTambah.addActionListener(new java.awt.event.ActionListener() {

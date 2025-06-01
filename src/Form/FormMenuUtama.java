@@ -27,7 +27,7 @@ public class FormMenuUtama extends javax.swing.JFrame {
     public FormMenuUtama() {
         initComponents();
         setTitle("Koperasi Nuris");
-        ImageIcon icon = new ImageIcon(getClass().getResource("/Icon/test.png"));
+        ImageIcon icon = new ImageIcon(getClass().getResource("/Icon/resnures.png"));
         setIconImage(icon.getImage());
 
         PLogin = new PanelLogin();
