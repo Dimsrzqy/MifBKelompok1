@@ -158,6 +158,8 @@ public class PopupTambahStok extends javax.swing.JPanel {
         id_barang = new javax.swing.JComboBox<>();
         simpan = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jPanel1.setBackground(new java.awt.Color(28, 69, 50));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);

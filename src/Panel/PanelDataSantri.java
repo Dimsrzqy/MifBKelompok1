@@ -205,6 +205,8 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
         LbTanggal = new javax.swing.JLabel();
         txCariRFid = new javax.swing.JTextField();
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},

@@ -109,6 +109,8 @@ private void resetTxNominal() {
         jLabel19 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         btTambah.setBackground(new java.awt.Color(28, 69, 50));
         btTambah.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btTambah.setForeground(new java.awt.Color(255, 255, 255));

@@ -42,7 +42,7 @@ public class PanelManajemenAkun extends javax.swing.JPanel {
         header.setForeground(Color.WHITE);           // teks putih
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         
-        jTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+     jTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
         boolean isSelected, boolean hasFocus, int row, int column) {
@@ -249,6 +249,10 @@ private void showEditDialog(Map<String, String> userData) {
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         LbTanggal = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

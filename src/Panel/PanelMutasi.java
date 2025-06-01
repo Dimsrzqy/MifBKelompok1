@@ -125,6 +125,8 @@ public void resizeColumnWidth(JTable table) {
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null},

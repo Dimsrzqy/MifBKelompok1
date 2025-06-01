@@ -18,66 +18,142 @@ import javax.swing.*;
 
 public class PanelRegister extends javax.swing.JPanel {
 
-    /**
-     * Creates new form PanelRegister
-     */
     public PanelRegister() {
         initComponents();
-        
+
+        // Placeholder
         TxNama.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "nama lengkap");
         TxUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "username");
         TxPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "kombinasi huruf dan angka");
         TxPassword2.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "konfirmasi password");
         TxEmail.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "contoh@gmail.com");
         TxNoHp.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "nomor handphone");
-        
-        TxPassword.putClientProperty(FlatClientProperties.STYLE, ""
-            + "showRevealButton:true;"
-            + "showCapsLock:true");
-        TxPassword2.putClientProperty(FlatClientProperties.STYLE, ""
-            + "showRevealButton:true;"
-            + "showCapsLock:true");
+
+        TxPassword.putClientProperty(FlatClientProperties.STYLE, "showRevealButton:true;showCapsLock:true");
+        TxPassword2.putClientProperty(FlatClientProperties.STYLE, "showRevealButton:true;showCapsLock:true");
+
+        // Tambahkan listener hanya sekali
+        setupRegisterButtonListener();
     }
+
     public enum LevelUser {
-    admin, user
-}
+        admin, user
+    }
+
+    private void setupRegisterButtonListener() {
+        // Hapus semua listener lama (hindari dobel klik)
+        for (ActionListener al : BtRegister.getActionListeners()) {
+            BtRegister.removeActionListener(al);
+        }
+
+        BtRegister.addActionListener(e -> handleRegister());
+    }
+
+    private void handleRegister() {
+        String nama = TxNama.getText().trim();
+        String username = TxUsername.getText().trim();
+        String password = TxPassword2.getText();
+        String confirmPassword = TxPassword.getText();
+        String email = TxEmail.getText().trim();
+        String nohp = TxNoHp.getText().trim();
+
+        // Validasi input kosong
+        if (nama.isEmpty() || username.isEmpty() || confirmPassword.isEmpty() || password.isEmpty() || email.isEmpty() || nohp.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Semua field wajib diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Cek password sama
+        if (!confirmPassword.equals(password)) {
+            JOptionPane.showMessageDialog(this, "Password dan Konfirmasi tidak sama!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validasi kekuatan password
+        if (!isPasswordValid(password)) {
+            JOptionPane.showMessageDialog(this, "Password harus terdiri dari huruf besar, kecil, dan angka, minimal 6 karakter.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Validasi email
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "Format email tidak valid!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "");
+             Statement s = con.createStatement()) {
+
+            // Cek username sudah ada
+            ResultSet rs = s.executeQuery("SELECT * FROM user WHERE Username = '" + username + "'");
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(this, "Username sudah digunakan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Ambil ID terakhir
+            String lastId = "";
+            ResultSet rsLast = s.executeQuery("SELECT IDUser FROM user ORDER BY IDUser DESC LIMIT 1");
+            if (rsLast.next()) {
+                lastId = rsLast.getString("IDUser");
+            }
+
+            String newIdUser = lastId.isEmpty() ? "USR001" :
+                String.format("USR%03d", Integer.parseInt(lastId.substring(3)) + 1);
+
+            // Enkripsi password
+            String hashedPassword = hashMD5(password);
+
+            // Simpan data
+            String insert = "INSERT INTO user (IDUser, NamaUser, Username, Password, Email, NoHp, Level) " +
+                            "VALUES ('" + newIdUser + "', '" + nama + "', '" + username + "', '" + hashedPassword + "', '" + email + "', '" + nohp + "', '" + LevelUser.user.name() + "')";
+            s.execute(insert);
+
+            JOptionPane.showMessageDialog(this, "Akun berhasil dibuat!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            clearForm();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void clearForm() {
+        TxNama.setText("");
+        TxUsername.setText("");
+        TxPassword.setText("");
+        TxPassword2.setText("");
+        TxEmail.setText("");
+        TxNoHp.setText("");
+    }
+
     public static String hashMD5(String input) {
-    try {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] messageDigest = md.digest(input.getBytes());
-        StringBuilder sb = new StringBuilder();
-        for (byte b : messageDigest) {
-            sb.append(String.format("%02x", b));
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : messageDigest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-        return sb.toString();
-    } catch (NoSuchAlgorithmException e) {
-        throw new RuntimeException(e);
     }
-}
-    
+
     public boolean isPasswordValid(String password) {
-    if (password.length() < 6) {
-        return false; // Minimal 6 karakter
-    }
-
-    boolean adaHurufBesar = false;
-    boolean adaHurufKecil = false;
-    boolean adaAngka = false;
-
-    for (char c : password.toCharArray()) {
-        if (Character.isUpperCase(c)) {
-            adaHurufBesar = true;
-        } else if (Character.isLowerCase(c)) {
-            adaHurufKecil = true;
-        } else if (Character.isDigit(c)) {
-            adaAngka = true;
+        if (password.length() < 6) return false;
+        boolean hasUpper = false, hasLower = false, hasDigit = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
         }
+        return hasUpper && hasLower && hasDigit;
     }
 
-    return adaHurufBesar && adaHurufKecil && adaAngka;
-}
+    // Komponen GUI kamu seperti TxNama, TxUsername, BtRegister dll harus sudah dideklarasikan lewat GUI Builder
 
-   
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -310,120 +386,110 @@ public class PanelRegister extends javax.swing.JPanel {
     }//GEN-LAST:event_TxNamaActionPerformed
 
     private void BtRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtRegisterActionPerformed
-        BtRegister.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        String nama, username, password, email, nohp, query;
-        String SUrl, SUser, SPass;
+    String nama, username, password, email, nohp, query;
+    String SUrl = "jdbc:mysql://localhost:3306/koperasi_nuris";
+    String SUser = "root";
+    String SPass = "";
 
-        LevelUser level = LevelUser.user;
+    LevelUser level = LevelUser.user;
 
-        SUrl = "jdbc:mysql://localhost:3306/koperasi_nuris";
-        SUser = "root";
-        SPass = "";
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con = DriverManager.getConnection(SUrl, SUser, SPass);
+        Statement s = con.createStatement();
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(SUrl, SUser, SPass);
-            Statement s = con.createStatement();
-
-            if ("".equals(TxNama.getText())) {
-                JOptionPane.showMessageDialog(new JFrame(), "Nama harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if ("".equals(TxUsername.getText())) {
-                JOptionPane.showMessageDialog(new JFrame(), "Username harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if ("".equals(TxPassword2.getText())) {
-                JOptionPane.showMessageDialog(new JFrame(), "Password harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if ("".equals(TxEmail.getText())) {
-                JOptionPane.showMessageDialog(new JFrame(), "Email harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if ("".equals(TxNoHp.getText())) {
-                JOptionPane.showMessageDialog(new JFrame(), "Nomor handphone harus di isi", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                nama = TxNama.getText();
-                username = TxUsername.getText();
-                password = TxPassword2.getText();
-                email = TxEmail.getText();
-                nohp = TxNoHp.getText();
-
-                String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-                
-                String Cekpassword = TxPassword.getText();
-                String konfirmasiPassword = TxPassword2.getText();
-                
-                if (email.matches(emailPattern)) {
-
-                    // Cek apakah username sudah ada
-                    String cekQuery = "SELECT * FROM user WHERE Username = '" + username + "'";
-                    Statement sCek = con.createStatement();
-                    ResultSet rs = sCek.executeQuery(cekQuery);
-
-                    
-
-                    if (!Cekpassword.equals(konfirmasiPassword)) {
-                        JOptionPane.showMessageDialog(null, "Password dan Konfirmasi Password tidak sama!");
-                        return;
-                    }
-                    if (!isPasswordValid(password)) {
-                        JOptionPane.showMessageDialog(null, "Password harus minimal 6 karakter dan mengandung huruf besar, huruf kecil, dan angka!");
-                        return;
-                    }
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(null, "Username sudah digunakan, silakan pilih yang lain.");
-                        rs.close();
-                        sCek.close();
-                        return;
-                    }
-                    rs.close();
-                    sCek.close();
-
-                    // Ambil IDUser terakhir
-                    String lastId = "";
-                    String getLastIdQuery = "SELECT IDUser FROM user ORDER BY IDUser DESC LIMIT 1";
-                    Statement sLast = con.createStatement();
-                    ResultSet rsLast = sLast.executeQuery(getLastIdQuery);
-
-                    if (rsLast.next()) {
-                        lastId = rsLast.getString("IDUser");
-                    }
-                    rsLast.close();
-                    sLast.close();
-
-                    // Generate IDUser baru
-                    String newIdUser = "";
-                    if (lastId.equals("")) {
-                        newIdUser = "USR001";
-                    } else {
-                        String numberPart = lastId.substring(4); // ambil angka setelah 'USR-'
-                        int number = Integer.parseInt(numberPart) + 1;
-                        newIdUser = String.format("USR%03d", number);
-                    }
-                                 
-                    String hashPassword = hashMD5(password);
-
-                    // Insert jika username belum ada
-                    query = "INSERT INTO user (IDUser, NamaUser, Username, Password, Email, NoHp, Level) " +
-                            "VALUES ('" + newIdUser + "', '" + nama + "', '" + username + "', '" + hashPassword + "', '" + email + "', '" + nohp + "', '" + level.name() + "')";
-                    s.execute(query);
-
-                    // Kosongkan input
-                    TxNama.setText("");
-                    TxUsername.setText("");
-                    TxPassword.setText("");
-                    TxPassword2.setText("");
-                    TxEmail.setText("");
-                    TxNoHp.setText("");
-
-                    JOptionPane.showMessageDialog(null, "Akun Berhasil Dibuat");
-
-                } else {
-                    JOptionPane.showMessageDialog(new JFrame(), "Email tidak valid!");
-                }
-            }
-
-        } catch (Exception ex) {
-            System.out.println("Error: " + ex.getMessage());
+        // Validasi input kosong
+        if (TxNama.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }
-});
+        if (TxUsername.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (TxPassword.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Password harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (TxPassword2.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Konfirmasi password harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (TxEmail.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Email harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (TxNoHp.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nomor handphone harus diisi", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
+        // Ambil data
+        nama = TxNama.getText().trim();
+        username = TxUsername.getText().trim();
+        password = TxPassword2.getText();
+        email = TxEmail.getText().trim();
+        nohp = TxNoHp.getText().trim();
+
+        // Validasi email
+        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        if (!email.matches(emailPattern)) {
+            JOptionPane.showMessageDialog(this, "Email tidak valid!");
+            return;
+        }
+
+        // Validasi password
+        if (!TxPassword.getText().equals(password)) {
+            JOptionPane.showMessageDialog(this, "Password dan Konfirmasi Password tidak sama!");
+            return;
+        }
+        if (!isPasswordValid(password)) {
+            JOptionPane.showMessageDialog(this, "Password harus minimal 6 karakter dan mengandung huruf besar, huruf kecil, dan angka!");
+            return;
+        }
+
+        // Cek username unik
+        String cekQuery = "SELECT * FROM user WHERE Username = '" + username + "'";
+        ResultSet rs = s.executeQuery(cekQuery);
+        if (rs.next()) {
+            JOptionPane.showMessageDialog(this, "Username sudah digunakan, silakan pilih yang lain.");
+            rs.close();
+            return;
+        }
+        rs.close();
+
+        // Ambil ID terakhir
+        String newIdUser = "USR001";
+        String getLastIdQuery = "SELECT IDUser FROM user ORDER BY IDUser DESC LIMIT 1";
+        ResultSet rsLast = s.executeQuery(getLastIdQuery);
+        if (rsLast.next()) {
+            String lastId = rsLast.getString("IDUser");
+            int number = Integer.parseInt(lastId.substring(3)) + 1;
+            newIdUser = String.format("USR%03d", number);
+        }
+        rsLast.close();
+
+        // Hash password
+        String hashPassword = hashMD5(password);
+
+        // Insert
+        query = "INSERT INTO user (IDUser, NamaUser, Username, Password, Email, NoHp, Level) " +
+                "VALUES ('" + newIdUser + "', '" + nama + "', '" + username + "', '" + hashPassword + "', '" + email + "', '" + nohp + "', '" + level.name() + "')";
+        s.executeUpdate(query);
+
+        // Bersihkan form
+        TxNama.setText("");
+        TxUsername.setText("");
+        TxPassword.setText("");
+        TxPassword2.setText("");
+        TxEmail.setText("");
+        TxNoHp.setText("");
+
+        JOptionPane.showMessageDialog(this, "Akun berhasil dibuat.");
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     }//GEN-LAST:event_BtRegisterActionPerformed
 

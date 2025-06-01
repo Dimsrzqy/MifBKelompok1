@@ -42,6 +42,7 @@ public class PanelTabungan extends javax.swing.JPanel {
     public PanelTabungan() {
         initComponents(); // komponen seperti txCari dan jTable dibuat otomatis oleh NetBeans
         setupRFIDListener();
+        txTotalSaldo.setEditable(false); 
         loadTable();
         loadTotalSaldoKeTextField();
         
@@ -209,6 +210,8 @@ private void showDetailPopup(String noRFID, String nama, double saldo, double no
         jLabel17 = new javax.swing.JLabel();
         LbTanggal = new javax.swing.JLabel();
         txTotalSaldo = new javax.swing.JTextField();
+
+        setBackground(new java.awt.Color(255, 255, 255));
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

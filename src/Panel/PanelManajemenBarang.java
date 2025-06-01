@@ -572,6 +572,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         }
     }, 3000);
 
+
     }//GEN-LAST:event_txBarcodeActionPerformed
 
 
