@@ -31,7 +31,20 @@ public class Menu extends JPanel {
         {"Tabungan Santri"},
         {"Manajemen Barang", "Barang", "Stok", "Kategori"},
         {"~Laporan~"},
-        {"Laporan", "Laporan Penjualan", "Laporan Pembelian"},  
+        {"Laporan", "Laporan Pembelian", "Laporan Penjualan"},
+        {"Logout"}
+    };
+    
+    private final String menuItemsUser[][] = {
+        {"~UTAMA~"},
+        {"Dashboard"},
+        {"~MENU USER~"},
+        {"Transaksi", "Transaksi Beli", "Transaksi Jual"},
+        {"Manajemen Akun", "Akun Santri", "Akun Kasir"},
+        {"Tabungan Santri"},
+        {"Manajemen Barang", "Barang", "Stok", "Kategori"},
+        {"~Laporan~"},
+        {"Laporan", "Laporan Pembelian", "Laporan Penjualan"},
         {"Logout"}
     };
 

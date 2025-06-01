@@ -42,6 +42,82 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
 
+    private void cariBarangDenganBarcode(String barcode) {
+    DefaultTableModel model = new DefaultTableModel();
+    model.addColumn("No");
+    model.addColumn("ID Barang");
+    model.addColumn("Nama Barang");
+    model.addColumn("Kategori");
+    model.addColumn("Stok");
+    model.addColumn("Harga Beli");
+    model.addColumn("Harga Jual");
+    model.addColumn("Tanggal Kadaluarsa");
+    model.addColumn("Tanggal Masuk");
+    model.addColumn("Barcode");
+
+    try {
+        int no = 1;
+        String sql = "SELECT b.*, k.NamaKategori AS nama_kategori, "
+                   + "s.JumlahMasuk, s.JumlahKeluar, s.TanggalKadaluarsa "
+                   + "FROM barang b "
+                   + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
+                   + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang "
+                   + "WHERE b.Barcode = ?";
+
+        Connection conn = Koneksi.getConnection();
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setString(1, barcode);
+        ResultSet res = pst.executeQuery();
+
+        while (res.next()) {
+            String idBarang = res.getString("IDBarang");
+
+            String stok = "-";
+            try {
+                int masuk = res.getInt("JumlahMasuk");
+                int keluar = res.getInt("JumlahKeluar");
+                stok = String.valueOf(masuk - keluar);
+            } catch (Exception e) {
+                stok = "-";
+            }
+
+            String kadaluarsa = (res.getDate("TanggalKadaluarsa") != null)
+                    ? res.getDate("TanggalKadaluarsa").toString()
+                    : "-";
+            String tanggalMasuk = (res.getDate("TanggalMasuk") != null)
+                    ? res.getDate("TanggalMasuk").toString()
+                    : "-";
+
+            model.addRow(new Object[]{
+                no++,
+                idBarang,
+                res.getString("NamaBarang"),
+                res.getString("nama_kategori"),
+                stok,
+                res.getDouble("HargaBeli"),
+                res.getDouble("HargaJual"),
+                kadaluarsa,
+                tanggalMasuk,
+                res.getString("Barcode")
+            });
+        }
+
+        tabel_barang.setModel(model);
+
+        // Sembunyikan kolom No dan ID Barang seperti biasa
+        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setWidth(0);
+        tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
+        tabel_barang.getColumnModel().getColumn(1).setWidth(0);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Gagal mencari barang: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
     private void loadStokData() {
         try (Connection conn = Koneksi.getConnection()) {
             String query
@@ -289,7 +365,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         BtnHapus = new javax.swing.JButton();
         edit = new javax.swing.JButton();
-        BtCari = new javax.swing.JButton();
         txBarcode = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
@@ -315,14 +390,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         edit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editActionPerformed(evt);
-            }
-        });
-
-        BtCari.setBackground(new java.awt.Color(255, 230, 0));
-        BtCari.setText("Cari");
-        BtCari.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BtCariActionPerformed(evt);
             }
         });
 
@@ -360,13 +427,10 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(BtCari))
+                            .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel17))
-                        .addContainerGap(736, Short.MAX_VALUE))
+                        .addContainerGap(814, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1)
@@ -389,7 +453,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(BtnHapus)
-                    .addComponent(BtCari, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
@@ -424,7 +487,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
 
         // Ambil ID Barang dari kolom yang benar (kolom 1)
         DefaultTableModel model = (DefaultTableModel) tabel_barang.getModel();
-        String idBarang = model.getValueAt(selectedRow, 0).toString().trim();
+        String idBarang = model.getValueAt(selectedRow, 1).toString().trim();
 
         try {
             // Query hapus data
@@ -488,26 +551,32 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         tampilkanDataBarang(); // Refresh data
     }//GEN-LAST:event_editActionPerformed
 
-    private void BtCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtCariActionPerformed
-        JDialogCariBRG popup = new JDialogCariBRG();
-        popup.setModal(true);
-        popup.setLocationRelativeTo(this);
-        popup.setVisible(true); // tunggu dialog ditutup baru lanjut
-
-        // Setelah dialog ditutup:
-        String idBarang = popup.getSelectedBarang();
-        if (idBarang != null) {
-            getBarangDataFromDatabase(idBarang);
-        }
-    }//GEN-LAST:event_BtCariActionPerformed
-
     private void txBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txBarcodeActionPerformed
-        // TODO add your handling code here:
+  String barcode = txBarcode.getText().trim();
+    if (barcode.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Silakan masukkan barcode.");
+        return;
+    }
+
+    // Cari dan tampilkan barang berdasarkan barcode
+    cariBarangDenganBarcode(barcode);
+
+    // Setelah 3 detik, refresh tabel
+    new java.util.Timer().schedule(new java.util.TimerTask() {
+        @Override
+        public void run() {
+            SwingUtilities.invokeLater(() -> {
+                txBarcode.setText(""); // kosongkan input barcode
+                tampilkanDataBarang(); // tampilkan semua data kembali
+            });
+        }
+    }, 3000);
+
+
     }//GEN-LAST:event_txBarcodeActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BtCari;
     private javax.swing.JButton BtnHapus;
     private javax.swing.JButton edit;
     private javax.swing.JCheckBox jCheckBox1;

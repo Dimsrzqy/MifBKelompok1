@@ -90,10 +90,11 @@ public class FormMenuUtama extends javax.swing.JFrame {
         component.applyComponentOrientation(app.getComponentOrientation());
         app.mainForm.showForm(component);
     }
-    public static void login(){
+    public static void login(String levelStr){
         FlatAnimatedLafChange.showSnapshot();
         app.setContentPane(app.mainForm);
         app.mainForm.applyComponentOrientation(app.getComponentOrientation());
+        app.mainForm.getLevel(levelStr);
         setSelectedMenu(0,0);
         app.mainForm.hideMenu();
         SwingUtilities.updateComponentTreeUI(app.mainForm);
