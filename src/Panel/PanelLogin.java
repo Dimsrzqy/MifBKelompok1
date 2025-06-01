@@ -219,7 +219,7 @@ public class UserSession {
 }
 
     private void btLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLoginActionPerformed
-        String User, Pw, query, passDB;
+String User, Pw, query, passDB;
 String SUrl, SUser, SPass;
 PanelLogin.LevelUser level = null;
 
@@ -241,7 +241,9 @@ if ("".equals(User)) {
 try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     java.sql.Connection con = DriverManager.getConnection(SUrl, SUser, SPass);
-    query = "SELECT * FROM user WHERE Username = ?";
+
+    // Query case-sensitive username check dengan BINARY
+    query = "SELECT * FROM user WHERE BINARY Username = ?";
 
     PreparedStatement s = con.prepareStatement(query);
     s.setString(1, User);
@@ -252,7 +254,6 @@ try {
         String levelStr = rs.getString("Level");
         String nama = rs.getString("NamaUser");
         UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
-
 
         if (levelStr == null) {
             JOptionPane.showMessageDialog(new JFrame(), "Level kosong", "Error", JOptionPane.ERROR_MESSAGE);
@@ -271,22 +272,16 @@ try {
 
         if (Pw.equals(passDB)) {
             // Menyimpan ID pengguna yang aktif setelah login
-            activeUserId = rs.getString("IDUser");
-            
-
+            String activeUserId = rs.getString("IDUser");
             System.out.println("ID Pengguna yang aktif: " + activeUserId);
 
             if (level == PanelLogin.LevelUser.admin) {
                 System.out.println("Login sebagai Admin");
-                System.out.println("Nama kasir diset: " + nama);
-                UserSession.setNamaKasir(rs.getString("NamaUser"));
-                UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
-
+                UserSession.setNamaKasir(nama);
                 FormMenuUtama.login();
-                
             } else if (level == PanelLogin.LevelUser.user) {
                 System.out.println("Login sebagai User");
-                FormMenuUtama.login();    
+                FormMenuUtama.login();
             }
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "Username atau Password salah", "Error", JOptionPane.ERROR_MESSAGE);
