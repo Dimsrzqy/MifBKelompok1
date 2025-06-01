@@ -487,7 +487,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
 
         // Ambil ID Barang dari kolom yang benar (kolom 1)
         DefaultTableModel model = (DefaultTableModel) tabel_barang.getModel();
-        String idBarang = model.getValueAt(selectedRow, 0).toString().trim();
+        String idBarang = model.getValueAt(selectedRow, 1).toString().trim();
 
         try {
             // Query hapus data

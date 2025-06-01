@@ -200,7 +200,16 @@ public class PanelLogin extends javax.swing.JPanel {
 public class UserSession {
     private static String username;
     private static String namaKasir; // tambahkan ini kalau belum ada
+    private static String levelStr;
+    
+    public static void setLevel(String level) {
+        levelStr = level;
+    }
 
+    public static String getLevel() {
+        return levelStr;
+    }
+    
     public static void setUsername(String user) {
         username = user;
     }
@@ -252,7 +261,7 @@ try {
         String levelStr = rs.getString("Level");
         String nama = rs.getString("NamaUser");
         UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
-
+        FormMenuUtama.login(levelStr);
 
         if (levelStr == null) {
             JOptionPane.showMessageDialog(new JFrame(), "Level kosong", "Error", JOptionPane.ERROR_MESSAGE);
@@ -281,12 +290,12 @@ try {
                 System.out.println("Nama kasir diset: " + nama);
                 UserSession.setNamaKasir(rs.getString("NamaUser"));
                 UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
-
-                FormMenuUtama.login();
+                
                 
             } else if (level == PanelLogin.LevelUser.user) {
                 System.out.println("Login sebagai User");
-                FormMenuUtama.login();    
+                System.out.println("Nama kasir diset: " + nama);
+                    
             }
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "Username atau Password salah", "Error", JOptionPane.ERROR_MESSAGE);
