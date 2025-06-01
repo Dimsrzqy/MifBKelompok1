@@ -27,17 +27,17 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jPanel16" alignment="1" max="32767" attributes="0"/>
+          <Component id="PanelPenjualan" alignment="1" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jPanel16" alignment="0" max="32767" attributes="0"/>
+          <Component id="PanelPenjualan" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JPanel" name="jPanel16">
+    <Container class="javax.swing.JPanel" name="PanelPenjualan">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -199,11 +199,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                              <Component id="CbMetodePembayaran" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
-                              <Component id="txJumlah" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
-                          </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="txJumlah" alignment="1" min="-2" pref="51" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="BtCari" alignment="3" min="-2" pref="33" max="-2" attributes="0"/>
                               <Component id="txHargaSatuan" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
@@ -211,6 +208,7 @@
                               <Component id="btTambah" alignment="3" min="-2" pref="39" max="-2" attributes="0"/>
                               <Component id="txNamaProduk" alignment="3" min="-2" pref="51" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="CbMetodePembayaran" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" pref="243" max="-2" attributes="0"/>
@@ -401,7 +399,9 @@
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder/>
+                    <TitledBorder title="Metode Pembayaran">
+                      <Font PropertyName="font" name="Segoe UI" size="12" style="1"/>
+                    </TitledBorder>
                   </Border>
                 </Property>
               </Properties>

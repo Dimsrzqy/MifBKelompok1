@@ -277,11 +277,11 @@ try {
 
             if (level == PanelLogin.LevelUser.admin) {
                 System.out.println("Login sebagai Admin");
+                UserSession.setNamaKasir(rs.getString("NamaUSer"));
                 UserSession.setNamaKasir(nama);
-                FormMenuUtama.login();
             } else if (level == PanelLogin.LevelUser.user) {
                 System.out.println("Login sebagai User");
-                FormMenuUtama.login();
+                
             }
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "Username atau Password salah", "Error", JOptionPane.ERROR_MESSAGE);

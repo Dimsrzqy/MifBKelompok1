@@ -91,7 +91,7 @@ public class kategori extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_kategori);
 
-        Tambah.setBackground(new java.awt.Color(13, 87, 48));
+        Tambah.setBackground(new java.awt.Color(0, 153, 0));
         Tambah.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         Tambah.setForeground(new java.awt.Color(255, 255, 255));
         Tambah.setText("Tambah");

@@ -4,6 +4,7 @@ import Panel.PanelDashboard;
 import Form.FormMenuUtama;
 import Menu.Menu;
 import Menu.MenuAction;
+import Panel.PanelDataPembelian;
 import Panel.PanelDataPenjualan;
 import Panel.PanelDataSantri;
 import Panel.PanelManajemenAkun;
@@ -33,6 +34,7 @@ public class Main extends JLayeredPane{
     private Menu menu;
     private JPanel panelBody;
     private JButton menuButton;
+    private String levelStr;
     
     public Main(){
         init();
@@ -66,51 +68,96 @@ public class Main extends JLayeredPane{
         menuButton.setIcon(new FlatSVGIcon("Icon/SVG/" + icon, 0.8f));
             
     }
+    public void getLevel(String levelStr){
+        this.levelStr = levelStr;
+    }
+    
     private void initMenuEvent(){
         menu.addMenuEvent((int index, int subIndex, MenuAction action) ->{
-        if (index == 0){
-            FormMenuUtama.showForm(new PanelDashboard()); 
-        }else if(index == 1){
-            if(subIndex == 1){
-                FormMenuUtama.showForm(new PanelTransaksiBeli());
+        if(levelStr != null){
+            if (index == 0){
+                FormMenuUtama.showForm(new PanelDashboard());
+            }else if(levelStr.equals("admin")){
+                        if (index == 0){
+                    FormMenuUtama.showForm(new PanelDashboard()); 
+                }else if(index == 1){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelTransaksiBeli());
+                    }
+                    if(subIndex == 2){
+                        FormMenuUtama.showForm(new PanelTransaksiJual());
+
+                    }   
+                }else if(index == 2){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelDataSantri());
+                    }else if(subIndex == 2){
+                        FormMenuUtama.showForm(new PanelManajemenAkun());
+                    }
+                }else if(index == 3){
+                    FormMenuUtama.showForm(new PanelTabungan());
+                }
+                else if(index == 4){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelManajemenBarang());
+                    }
+                    if(subIndex == 2){
+                        FormMenuUtama.showForm(new stok());
+                    }
+                    if(subIndex == 3){
+                        FormMenuUtama.showForm(new kategori());
+                    }
+                }else if(index == 5){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelDataPembelian());
+                    }
+                    if(subIndex == 2){
+                        FormMenuUtama.showForm(new PanelDataPenjualan());
+                    }
+                }
+                else if(index == 6){
+                    FormMenuUtama.logout();
+                }else if(index == 12){
+
+                }else{
+                    action.cancel();
+                }
+            }else if(levelStr.equals("user")){
+                if (index == 0){
+                    FormMenuUtama.showForm(new PanelDashboard()); 
+                }else if(index == 1){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelTransaksiBeli());
+                    }
+                    if(subIndex == 2){
+                        FormMenuUtama.showForm(new PanelTransaksiJual());
+
+                    }   
+                }else if(index == 2){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelDataSantri());
+                    }else if(subIndex == 2){
+                        
+                    }
+                }else if(index == 3){
+                    FormMenuUtama.showForm(new PanelTabungan());
+                }
+                else if(index == 4){
+                    if(subIndex == 1){
+                        FormMenuUtama.showForm(new PanelManajemenBarang());
+                    }
+                    if(subIndex == 2){
+                        FormMenuUtama.showForm(new stok());
+                    }
+                    if(subIndex == 3){
+                        FormMenuUtama.showForm(new kategori());
+                    }
+                }else if(index == 6){
+                    FormMenuUtama.logout();
+                }else if(index == 12){
+
+                }
             }
-            if(subIndex == 2){
-                FormMenuUtama.showForm(new PanelTransaksiJual());
-                
-            }   
-        }else if(index == 2){
-            if(subIndex == 1){
-                FormMenuUtama.showForm(new PanelDataSantri());
-            }else if(subIndex == 2){
-                FormMenuUtama.showForm(new PanelManajemenAkun());
-            }
-        }else if(index == 3){
-            FormMenuUtama.showForm(new PanelTabungan());
-        }
-        else if(index == 4){
-            if(subIndex == 1){
-                FormMenuUtama.showForm(new PanelManajemenBarang());
-            }
-            if(subIndex == 2){
-                FormMenuUtama.showForm(new stok());
-            }
-            if(subIndex == 3){
-                FormMenuUtama.showForm(new kategori());
-            }
-        }else if(index == 5){
-            if(subIndex == 1){
-                FormMenuUtama.showForm(new PanelDataPenjualan());
-            }
-            if(subIndex == 2){
-                
-            }
-        }
-        else if(index == 6){
-            FormMenuUtama.logout();
-        }else if(index == 12){
-            
-        }else{
-            action.cancel();
         }
         });
 }

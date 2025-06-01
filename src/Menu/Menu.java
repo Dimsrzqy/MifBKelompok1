@@ -31,7 +31,20 @@ public class Menu extends JPanel {
         {"Tabungan Santri"},
         {"Manajemen Barang", "Barang", "Stok", "Kategori"},
         {"~Laporan~"},
-        {"Laporan", "Laporan Penjualan", "Laporan Pembelian"},  
+        {"Laporan", "Pembelian", "Penjualan"},
+        {"Logout"}
+    };
+    
+    private final String menuItemsUser[][] = {
+        {"~UTAMA~"},
+        {"Dashboard"},
+        {"~MENU USER~"},
+        {"Transaksi", "Transaksi Beli", "Transaksi Jual"},
+        {"Manajemen Akun", "Akun Santri", "Akun Kasir"},
+        {"Tabungan Santri"},
+        {"Manajemen Barang", "Barang", "Stok", "Kategori"},
+        {"~Laporan~"},
+        {"Laporan", "Laporan Pembelian", "Laporan Penjualan"},
         {"Logout"}
     };
 
@@ -79,7 +92,7 @@ public class Menu extends JPanel {
                 + "background:$Menu.background;"
                 + "arc:10");
         header = new JLabel(headerName);
-        header.setIcon(new ImageIcon(getClass().getResource("/icon/test.png")));
+        header.setIcon(new ImageIcon(getClass().getResource("/icon/resnures.png")));
         header.putClientProperty(FlatClientProperties.STYLE, ""
                 + "font:$Menu.header.font;"
                 + "foreground:$Menu.foreground");
