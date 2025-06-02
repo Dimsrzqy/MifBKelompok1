@@ -7,9 +7,14 @@ package Panel;
 import java.sql.*;
 import Panel.TambahStokKategori;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -25,10 +30,35 @@ public class kategori extends javax.swing.JPanel {
     public kategori() {
         initComponents();
         tampilDatakategori();
+        
         JTableHeader header = tabel_kategori.getTableHeader();
-        header.setBackground(new Color(0, 102, 204)); // biru tua
+        header.setBackground(new Color(28, 69, 50)); // biru tua
         header.setForeground(Color.WHITE);           // teks putih
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+     tabel_kategori.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(Color.WHITE); // baris genap
+            } else {
+                c.setBackground(new Color(240, 240, 240)); // baris ganjil abu muda
+            }
+        } else {
+            c.setBackground(new Color(41, 157, 145)); // warna saat dipilih
+        }
+
+        return c;
+    }
+});
+        
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+        LbTanggal.setText(LocalDate.now().format(dtf));
     }
   
     public void tampilDatakategori() {
@@ -70,6 +100,10 @@ public class kategori extends javax.swing.JPanel {
         Hapus = new javax.swing.JButton();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
+        jSeparator8 = new javax.swing.JSeparator();
+        LbTanggal = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(255, 255, 255));
 
         tabel_kategori.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -84,7 +118,9 @@ public class kategori extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_kategori);
 
-        Tambah.setBackground(new java.awt.Color(0, 153, 0));
+        Tambah.setBackground(new java.awt.Color(28, 69, 50));
+        Tambah.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        Tambah.setForeground(new java.awt.Color(255, 255, 255));
         Tambah.setText("Tambah");
         Tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -93,6 +129,8 @@ public class kategori extends javax.swing.JPanel {
         });
 
         Hapus.setBackground(new java.awt.Color(255, 0, 51));
+        Hapus.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        Hapus.setForeground(new java.awt.Color(255, 255, 255));
         Hapus.setText("Hapus");
         Hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -103,7 +141,9 @@ public class kategori extends javax.swing.JPanel {
         jLabel17.setText("Admin > Manajemen Barang");
 
         jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel18.setText("STOK");
+        jLabel18.setText("Kategori");
+
+        LbTanggal.setText("Hari Tanggal");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -120,11 +160,16 @@ public class kategori extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Tambah)
-                                .addGap(18, 18, 18)
-                                .addComponent(Hapus))
+                                .addComponent(LbTanggal))
                             .addComponent(jScrollPane1))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14))
+                    .addComponent(jSeparator8)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -134,11 +179,16 @@ public class kategori extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel18)
-                    .addComponent(Tambah)
-                    .addComponent(Hapus))
-                .addGap(8, 8, 8)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
-                .addContainerGap())
+                    .addComponent(LbTanggal))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                .addGap(17, 17, 17))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -149,8 +199,6 @@ public class kategori extends javax.swing.JPanel {
         dialog.pack();
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);//
-
-        dialog.setVisible(true);
         tampilDatakategori(); // Ini jalan setelah dialog ditutup
     }//GEN-LAST:event_TambahActionPerformed
 
@@ -188,10 +236,12 @@ public class kategori extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Hapus;
+    private javax.swing.JLabel LbTanggal;
     private javax.swing.JButton Tambah;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator8;
     private javax.swing.JTable tabel_kategori;
     // End of variables declaration//GEN-END:variables
 }

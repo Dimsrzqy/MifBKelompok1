@@ -12,7 +12,7 @@ import Panel.PanelTabungan;
 import Panel.PanelTransaksiBeli;
 import Panel.PanelTransaksiJual;
 import Panel.kategori;
-import Panel.stok;
+import Panel.stok   ;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
