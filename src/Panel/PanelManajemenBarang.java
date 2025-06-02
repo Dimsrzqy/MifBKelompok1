@@ -37,18 +37,38 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
     /**
      * Creates new form PanelManajemenBarang
      */
-    public PanelManajemenBarang() {
-        initComponents();
-        tampilkanDataBarang();
-        
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
-        LbTanggal.setText(LocalDate.now().format(dtf));
-        
-        JTableHeader header = tabel_barang.getTableHeader();
+public PanelManajemenBarang() {
+    initComponents();
+    tampilkanDataBarang();
+
+    // Tampilkan tanggal
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+    LbTanggal.setText(LocalDate.now().format(dtf));
+
+    // Custom header tabel
+    JTableHeader header = tabel_barang.getTableHeader();
     header.setBackground(new Color(28, 69, 50));
     header.setForeground(Color.WHITE);
     header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    }
+
+    // Pencarian real-time
+    txBarcode.getDocument().addDocumentListener(new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            cariBarang(txBarcode.getText().trim());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            cariBarang(txBarcode.getText().trim());
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            cariBarang(txBarcode.getText().trim());
+        }
+    });
+}
 
     private void cariBarang(String keyword) {
         DefaultTableModel model = new DefaultTableModel();
@@ -447,15 +467,15 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                         .addGap(256, 256, 256))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                            .addComponent(jScrollPane1)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(edit, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(BtnHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(edit, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(BtnHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(267, 267, 267))))
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 1042, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -478,7 +498,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(BtnHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(edit, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 28, 28)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 582, Short.MAX_VALUE)
                 .addGap(44, 44, 44))
         );
