@@ -4,6 +4,7 @@ import Form.FormMenuUtama;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.Connection;
@@ -37,7 +38,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
         txnama.setText(userData.getOrDefault("NamaBarang", ""));
         txhargab.setText("Rp " + userData.getOrDefault("HargaBeli", ""));
         txhargaj.setText("Rp " + userData.getOrDefault("HargaJual", ""));
-        txkadaluarsa.setText(formatTanggal(userData.getOrDefault("TanggalKadaluarsa", "")));
         txtanggalm.setText(formatTanggal(userData.getOrDefault("TanggalMasuk", "")));
         txbarcode.setText(userData.getOrDefault("Barcode", ""));
         txbarcode.setEditable(false);
@@ -103,7 +103,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
         updatedData.put("NamaKategori", NamaKategori);
         updatedData.put("HargaBeli", txhargab.getText().trim());
         updatedData.put("HargaJual", txhargaj.getText().trim());
-        updatedData.put("Kadaluarsa", txkadaluarsa.getText().trim());
         updatedData.put("TanggalMasuk", txtanggalm.getText().trim());
         updatedData.put("Barcode", txbarcode.getText().trim());
         return updatedData;
@@ -155,14 +154,12 @@ public class PopupEditManBarang extends javax.swing.JPanel {
         txhargab = new javax.swing.JTextField();
         txnama = new javax.swing.JTextField();
         txhargaj = new javax.swing.JTextField();
-        txkadaluarsa = new javax.swing.JTextField();
         txbarcode = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         simpan = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
@@ -184,12 +181,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
         txhargaj.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txhargajActionPerformed(evt);
-            }
-        });
-
-        txkadaluarsa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txkadaluarsaActionPerformed(evt);
             }
         });
 
@@ -219,8 +210,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
         jLabel3.setText("Harga Beli");
 
         jLabel4.setText("Harga Jual");
-
-        jLabel5.setText("Kadaluarsa");
 
         jLabel6.setText("Tanggal Masuk");
 
@@ -256,7 +245,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel5)
                     .addComponent(jLabel3)
                     .addComponent(jLabel2)
                     .addComponent(jLabel1)
@@ -266,7 +254,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
                     .addComponent(txbarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(txhargab)
-                        .addComponent(txkadaluarsa)
                         .addComponent(txnama, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
                         .addComponent(txhargaj, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
                         .addComponent(txtanggalm)
@@ -297,11 +284,7 @@ public class PopupEditManBarang extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txhargaj, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txkadaluarsa, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtanggalm, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
@@ -309,87 +292,83 @@ public class PopupEditManBarang extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(txbarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16)
+                .addGap(38, 38, 38)
                 .addComponent(simpan, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txkadaluarsaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txkadaluarsaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txkadaluarsaActionPerformed
-
     private void simpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simpanActionPerformed
-        try {
-            // Ambil data dari form
-            String NamaKategoriTerpilih = cbkategori.getSelectedItem().toString();
-            String NamaKategori = kategoriMap.get(NamaKategoriTerpilih);
-            Map<String, String> data = getUpdatedData();
+       try {
+    // Ambil data dari form
+    String NamaKategoriTerpilih = cbkategori.getSelectedItem().toString();
+    String NamaKategori = kategoriMap.get(NamaKategoriTerpilih);
+    Map<String, String> data = getUpdatedData();
 
-            if (NamaKategori == null) {
-                JOptionPane.showMessageDialog(this, "Kategori tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    if (NamaKategori == null) {
+        JOptionPane.showMessageDialog(this, "Kategori tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-            // Parse dan validasi data
-            String namaBarang = data.get("NamaBarang");
-            String hargaBeliStr = data.get("HargaBeli").replaceAll("[^\\d]", "");
-            String hargaJualStr = data.get("HargaJual").replaceAll("[^\\d]", "");
-            int hargaBeli = Integer.parseInt(hargaBeliStr);
-            int hargaJual = Integer.parseInt(hargaJualStr);
-            String tanggalMasuk = parseTanggal(data.get("TanggalMasuk"));
-            String kadaluarsa = parseTanggal(data.get("Kadaluarsa")); // ⬅️ ambil tanggal kadaluarsa dari form
-            String barcode = data.get("Barcode");
+    // Parse dan validasi data
+    String namaBarang = data.get("NamaBarang");
+    String hargaBeliStr = data.get("HargaBeli").replace(",", "").replace("Rp", "").trim();
+    String hargaJualStr = data.get("HargaJual").replace(",", "").replace("Rp", "").trim();
+    BigDecimal hargaBeli = new BigDecimal(hargaBeliStr);
+    BigDecimal hargaJual = new BigDecimal(hargaJualStr);
+    String tanggalMasuk = parseTanggal(data.get("TanggalMasuk"));
+    String kadaluarsa = parseTanggal(data.get("Kadaluarsa"));
+    String barcode = data.get("Barcode");
 
-            if (hargaJual <= hargaBeli) {
-                JOptionPane.showMessageDialog(this, "Harga jual harus lebih besar dari harga beli", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    if (hargaJual.compareTo(hargaBeli) <= 0) {
+        JOptionPane.showMessageDialog(this, "Harga jual harus lebih besar dari harga beli", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "")) {
-                conn.setAutoCommit(false); // ⬅️ Mulai transaksi
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/koperasi_nuris", "root", "")) {
+        conn.setAutoCommit(false); // Mulai transaksi
 
-                // Update barang
-                String sqlBarang = "UPDATE barang SET NamaBarang=?, IDKategori=?, HargaBeli=?, HargaJual=?, TanggalMasuk=?, Barcode=? WHERE IDBarang=?";
-                try (PreparedStatement pstBarang = conn.prepareStatement(sqlBarang)) {
-                    pstBarang.setString(1, namaBarang);
-                    pstBarang.setString(2, NamaKategori);
-                    pstBarang.setInt(3, hargaBeli);
-                    pstBarang.setInt(4, hargaJual);
-                    pstBarang.setString(5, tanggalMasuk);
-                    pstBarang.setString(6, barcode);
-                    pstBarang.setString(7, idBarang);
-                    pstBarang.executeUpdate();
-                }
-
-                // Update stok
-                String sqlStok = "UPDATE stok SET TanggalKadaluarsa=? WHERE IDBarang=?";
-                try (PreparedStatement pstStok = conn.prepareStatement(sqlStok)) {
-                    pstStok.setString(1, kadaluarsa);
-                    pstStok.setString(2, idBarang);
-                    pstStok.executeUpdate();
-                }
-
-                conn.commit(); // ⬅️ Commit transaksi
-
-                JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
-                FormMenuUtama.showForm(new PanelManajemenBarang());
-
-                // Tambahan: Menutup popup form
-                if (parentDialog != null) {
-                parentDialog.dispose();
-                }  
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Gagal memperbarui data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Format harga tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        // Update barang
+        String sqlBarang = "UPDATE barang SET NamaBarang=?, IDKategori=?, HargaBeli=?, HargaJual=?, TanggalMasuk=?, Barcode=? WHERE IDBarang=?";
+        try (PreparedStatement pstBarang = conn.prepareStatement(sqlBarang)) {
+            pstBarang.setString(1, namaBarang);
+            pstBarang.setString(2, NamaKategori);
+            pstBarang.setBigDecimal(3, hargaBeli);
+            pstBarang.setBigDecimal(4, hargaJual);
+            pstBarang.setString(5, tanggalMasuk);
+            pstBarang.setString(6, barcode);
+            pstBarang.setString(7, idBarang);
+            pstBarang.executeUpdate();
         }
+
+        // Update stok
+        String sqlStok = "UPDATE stok SET TanggalKadaluarsa=? WHERE IDBarang=?";
+        try (PreparedStatement pstStok = conn.prepareStatement(sqlStok)) {
+            pstStok.setString(1, kadaluarsa);
+            pstStok.setString(2, idBarang);
+            pstStok.executeUpdate();
+        }
+
+        conn.commit(); // Commit transaksi
+
+        JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
+        FormMenuUtama.showForm(new PanelManajemenBarang());
+
+        if (parentDialog != null) {
+            parentDialog.dispose();
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Gagal memperbarui data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+} catch (NumberFormatException e) {
+    JOptionPane.showMessageDialog(this, "Format harga tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    e.printStackTrace();
+}
 
     }//GEN-LAST:event_simpanActionPerformed
 
@@ -424,7 +403,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
@@ -432,7 +410,6 @@ public class PopupEditManBarang extends javax.swing.JPanel {
     private javax.swing.JTextField txbarcode;
     private javax.swing.JTextField txhargab;
     private javax.swing.JTextField txhargaj;
-    private javax.swing.JTextField txkadaluarsa;
     private javax.swing.JTextField txnama;
     private javax.swing.JTextField txtanggalm;
     // End of variables declaration//GEN-END:variables
