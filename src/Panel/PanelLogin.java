@@ -249,47 +249,59 @@ try {
     s.setString(1, User);
     ResultSet rs = s.executeQuery();
 
-    if (rs.next()) {
-        passDB = rs.getString("Password");
-        String levelStr = rs.getString("Level");
-        String nama = rs.getString("NamaUser");
-        UserSession.setNamaKasir(nama); // ini yang dibutuhkan panel transaksi
-        FormMenuUtama.login(levelStr);
+if (rs.next()) {
+    passDB = rs.getString("Password");
+    String levelStr = rs.getString("Level");
+    String nama = rs.getString("NamaUser");
 
-        if (levelStr == null) {
-            JOptionPane.showMessageDialog(new JFrame(), "Level kosong", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Penyesuaian dengan enum Java
-        if (levelStr.equalsIgnoreCase("admin")) {
-            level = PanelLogin.LevelUser.admin;
-        } else if (levelStr.equalsIgnoreCase("user")) {
-            level = PanelLogin.LevelUser.user;
-        } else {
-            JOptionPane.showMessageDialog(new JFrame(), "Level tidak dikenali: " + levelStr, "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (Pw.equals(passDB)) {
-            // Menyimpan ID pengguna yang aktif setelah login
-            String activeUserId = rs.getString("IDUser");
-            System.out.println("ID Pengguna yang aktif: " + activeUserId);
-
-            if (level == PanelLogin.LevelUser.admin) {
-                System.out.println("Login sebagai Admin");
-                UserSession.setNamaKasir(rs.getString("NamaUSer"));
-                UserSession.setNamaKasir(nama);
-            } else if (level == PanelLogin.LevelUser.user) {
-                System.out.println("Login sebagai User");
-                
-            }
-        } else {
-            JOptionPane.showMessageDialog(new JFrame(), "Username atau Password salah", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } else {
-        JOptionPane.showMessageDialog(new JFrame(), "User tidak ditemukan", "Error", JOptionPane.ERROR_MESSAGE);
+    if (levelStr == null) {
+        JOptionPane.showMessageDialog(new JFrame(), "Level kosong", "Error", JOptionPane.ERROR_MESSAGE);
+        con.close();
+        return;
     }
+
+    // Penyesuaian dengan enum Java
+    if (levelStr.equalsIgnoreCase("admin")) {
+        level = PanelLogin.LevelUser.admin;
+    } else if (levelStr.equalsIgnoreCase("user")) {
+        level = PanelLogin.LevelUser.user;
+    } else {
+        JOptionPane.showMessageDialog(new JFrame(), "Level tidak dikenali: " + levelStr, "Error", JOptionPane.ERROR_MESSAGE);
+        con.close();
+        return;
+    }
+
+    if (Pw.equals(passDB)) {
+        // Login benar
+        UserSession.setNamaKasir(nama);
+        activeUserId = rs.getString("IDUser");
+        System.out.println("ID Pengguna yang aktif: " + activeUserId);
+
+        if (level == PanelLogin.LevelUser.admin) {
+            System.out.println("Login sebagai Admin");
+            System.out.println("Nama Kasir diset : " + nama);
+        } else {
+            System.out.println("Login sebagai User");
+            System.out.println("Nama Kasir diset : " + nama);
+        }
+
+        FormMenuUtama.login(levelStr); // Pindahkan ke sini, hanya jika password cocok
+    } else {
+        JOptionPane.showMessageDialog(new JFrame(), "Username atau Password salah", "Error", JOptionPane.ERROR_MESSAGE);
+        TxPassword.setText("");
+        TxUsername.setText("");
+        con.close();
+        return;
+    }
+
+} else {
+    JOptionPane.showMessageDialog(new JFrame(), "User tidak ditemukan", "Error", JOptionPane.ERROR_MESSAGE);
+    TxPassword.setText("");
+    TxUsername.setText("");
+    con.close();
+    return;
+}
+
 
     con.close();
     TxPassword.setText("");

@@ -18,9 +18,13 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JDialog;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
@@ -36,87 +40,90 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
     public PanelManajemenBarang() {
         initComponents();
         tampilkanDataBarang();
+        
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+        LbTanggal.setText(LocalDate.now().format(dtf));
+        
         JTableHeader header = tabel_barang.getTableHeader();
-        header.setBackground(new Color(0, 102, 204)); // biru tua
-        header.setForeground(Color.WHITE);           // teks putih
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    header.setBackground(new Color(28, 69, 50));
+    header.setForeground(Color.WHITE);
+    header.setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
 
-    private void cariBarangDenganBarcode(String barcode) {
-    DefaultTableModel model = new DefaultTableModel();
-    model.addColumn("No");
-    model.addColumn("ID Barang");
-    model.addColumn("Nama Barang");
-    model.addColumn("Kategori");
-    model.addColumn("Stok");
-    model.addColumn("Harga Beli");
-    model.addColumn("Harga Jual");
-    model.addColumn("Tanggal Kadaluarsa");
-    model.addColumn("Tanggal Masuk");
-    model.addColumn("Barcode");
+    private void cariBarang(String keyword) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("No");
+        model.addColumn("ID Barang");
+        model.addColumn("Nama Barang");
+        model.addColumn("Kategori");
+        model.addColumn("Stok");
+        model.addColumn("Harga Beli");
+        model.addColumn("Harga Jual");
+        model.addColumn("Tanggal Masuk");
+        model.addColumn("Barcode");
 
-    try {
-        int no = 1;
-        String sql = "SELECT b.*, k.NamaKategori AS nama_kategori, "
-                   + "s.JumlahMasuk, s.JumlahKeluar, s.TanggalKadaluarsa "
-                   + "FROM barang b "
-                   + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
-                   + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang "
-                   + "WHERE b.Barcode = ?";
+        try {
+            int no = 1;
+            String sql = "SELECT b.*, k.NamaKategori AS nama_kategori, "
+                    + "s.JumlahMasuk, s.JumlahKeluar "
+                    + "FROM barang b "
+                    + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
+                    + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang "
+                    + "WHERE b.Barcode LIKE ? "
+                    + "OR b.NamaBarang LIKE ? "
+                    + "OR k.NamaKategori LIKE ?";
 
-        Connection conn = Koneksi.getConnection();
-        PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setString(1, barcode);
-        ResultSet res = pst.executeQuery();
+            Connection conn = Koneksi.getConnection();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            String cari = "%" + keyword + "%";
+            pst.setString(1, cari);
+            pst.setString(2, cari);
+            pst.setString(3, cari);
 
-        while (res.next()) {
-            String idBarang = res.getString("IDBarang");
+            ResultSet res = pst.executeQuery();
 
-            String stok = "-";
-            try {
-                int masuk = res.getInt("JumlahMasuk");
-                int keluar = res.getInt("JumlahKeluar");
-                stok = String.valueOf(masuk - keluar);
-            } catch (Exception e) {
-                stok = "-";
+            while (res.next()) {
+                String idBarang = res.getString("IDBarang");
+
+                String stok = "-";
+                try {
+                    int masuk = res.getInt("JumlahMasuk");
+                    int keluar = res.getInt("JumlahKeluar");
+                    stok = String.valueOf(masuk - keluar);
+                } catch (Exception e) {
+                    stok = "-";
+                }
+
+                String tanggalMasuk = (res.getDate("TanggalMasuk") != null)
+                        ? res.getDate("TanggalMasuk").toString()
+                        : "-";
+
+                model.addRow(new Object[]{
+                    no++,
+                    idBarang,
+                    res.getString("NamaBarang"),
+                    res.getString("nama_kategori"),
+                    stok,
+                    res.getDouble("HargaBeli"),
+                    res.getDouble("HargaJual"),
+                    tanggalMasuk,
+                    res.getString("Barcode")
+                });
             }
 
-            String kadaluarsa = (res.getDate("TanggalKadaluarsa") != null)
-                    ? res.getDate("TanggalKadaluarsa").toString()
-                    : "-";
-            String tanggalMasuk = (res.getDate("TanggalMasuk") != null)
-                    ? res.getDate("TanggalMasuk").toString()
-                    : "-";
+            tabel_barang.setModel(model);
+            tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
+            tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
+            tabel_barang.getColumnModel().getColumn(0).setWidth(0);
+            tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
+            tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
+            tabel_barang.getColumnModel().getColumn(1).setWidth(0);
 
-            model.addRow(new Object[]{
-                no++,
-                idBarang,
-                res.getString("NamaBarang"),
-                res.getString("nama_kategori"),
-                stok,
-                res.getDouble("HargaBeli"),
-                res.getDouble("HargaJual"),
-                kadaluarsa,
-                tanggalMasuk,
-                res.getString("Barcode")
-            });
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencari barang: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        tabel_barang.setModel(model);
-
-        // Sembunyikan kolom No dan ID Barang seperti biasa
-        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
-        tabel_barang.getColumnModel().getColumn(0).setWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setWidth(0);
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Gagal mencari barang: " + e.getMessage());
-        e.printStackTrace();
     }
-}
 
     private void loadStokData() {
         try (Connection conn = Koneksi.getConnection()) {
@@ -126,7 +133,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     + "s.JumlahMasuk, "
                     + "s.JumlahKeluar, "
                     + "(s.JumlahMasuk - s.JumlahKeluar) AS Stok, "
-                    + "s.TanggalKadaluarsa "
                     + "FROM Stok s "
                     + "LEFT JOIN barang b ON s.IDBarang = b.IDBarang";
 
@@ -142,11 +148,10 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 int masuk = rs.getInt("jumlah_masuk");
                 int keluar = rs.getInt("jumlah_keluar");
                 int stok = rs.getInt("Stok");
-                Date tanggalKadaluarsa = rs.getDate("TanggalKadaluarsa");
 
                 // Tambahkan baris ke tabel GUI
                 model.addRow(new Object[]{
-                    kdBarang, masuk, keluar, stok, tanggalKadaluarsa
+                    kdBarang, masuk, keluar, stok
                 });
             }
 
@@ -182,7 +187,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         model.addColumn("Stok"); // Kolom stok akan menampilkan "-" jika tidak ada data
         model.addColumn("Harga Beli");
         model.addColumn("Harga Jual");
-        model.addColumn("Tanggal Kadaluarsa");
         model.addColumn("Tanggal Masuk");
         model.addColumn("Barcode");
         // Sembunyikan kolom No (index 0) dan ID Barang (index 1)
@@ -190,7 +194,7 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         try {
             int no = 1;
             String sql = "SELECT b.*, k.NamaKategori AS nama_kategori, "
-                    + "s.JumlahMasuk, s.JumlahKeluar, s.TanggalKadaluarsa "
+                    + "s.JumlahMasuk, s.JumlahKeluar "
                     + "FROM barang b "
                     + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
                     + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang";
@@ -219,10 +223,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     Stok = "-";
                 }
 
-                String kadaluarsa = res.getDate("TanggalKadaluarsa") != null
-                        ? res.getDate("TanggalKadaluarsa").toString()
-                        : "-";
-
                 String tanggalMasuk = (res.getDate("TanggalMasuk") != null)
                         ? res.getDate("TanggalMasuk").toString()
                         : "-";
@@ -235,7 +235,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     Stok,
                     res.getDouble("HargaBeli"),
                     res.getDouble("HargaJual"),
-                    kadaluarsa, // ✅ tampilkan tanggal kadaluarsa
                     tanggalMasuk,
                     res.getString("Barcode")
                 });
@@ -263,13 +262,11 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
     private Map<String, String> getBarangDataFromDatabase(String idBarang) {
         Map<String, String> barangData = new HashMap<>();
         String query = "SELECT b.IDBarang, b.NamaBarang, b.IDKategori, k.NamaKategori AS nama_kategori, "
-                + "b.HargaBeli, b.HargaJual, b.TanggalMasuk, b.Barcode, "
-                + "s.TanggalKadaluarsa "
+                + "b.HargaBeli, b.HargaJual, b.TanggalMasuk, b.Barcode "
                 + "FROM barang b "
                 + "LEFT JOIN kategori k ON b.IDKategori = k.IDKategori "
                 + "LEFT JOIN stok s ON b.IDBarang = s.IDBarang "
-                + "WHERE b.IDBarang = ? "
-                + "LIMIT 1";  // Optional: hanya ambil 1 baris jika stok ada lebih dari 1
+                + "WHERE b.IDBarang = ? LIMIT 1";
 
         try (Connection conn = Koneksi.getConnection(); PreparedStatement pst = conn.prepareStatement(query)) {
 
@@ -282,7 +279,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                     barangData.put("nama_kategori", rs.getString("nama_kategori"));
                     barangData.put("HargaBeli", String.valueOf(rs.getDouble("HargaBeli")));
                     barangData.put("HargaJual", String.valueOf(rs.getDouble("HargaJual")));
-                    barangData.put("TanggalKadaluarsa", rs.getString("TanggalKadaluarsa"));
                     barangData.put("TanggalMasuk", rs.getString("TanggalMasuk"));
                     barangData.put("Barcode", rs.getString("Barcode"));
                 }
@@ -314,7 +310,6 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 + "IDKategori = ?, "
                 + "HargaBeli = ?, "
                 + "HargaJual = ?, "
-                + "TanggalKadaluarsa = ?, "
                 + "TanggalMasuk = ?, "
                 + "Barcode = ? "
                 + "WHERE IDBarang = ?";
@@ -325,10 +320,9 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
             pst.setString(2, updatedData.get("IDKategori"));
             pst.setString(3, updatedData.get("HargaBeli"));
             pst.setString(4, updatedData.get("HargaJual"));
-            pst.setString(5, updatedData.get("TanggalKadaluarsa"));
-            pst.setString(6, updatedData.get("TanggalMasuk"));
-            pst.setString(7, updatedData.get("Barcode"));
-            pst.setString(8, updatedData.get("IDBarang"));  // WHERE ID
+            pst.setString(5, updatedData.get("TanggalMasuk"));
+            pst.setString(6, updatedData.get("Barcode"));
+            pst.setString(7, updatedData.get("IDBarang"));  // WHERE ID
 
             int result = pst.executeUpdate();
 
@@ -370,6 +364,9 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         jLabel18 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_barang = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        jSeparator8 = new javax.swing.JSeparator();
+        LbTanggal = new javax.swing.JLabel();
 
         jCheckBox1.setText("jCheckBox1");
 
@@ -378,6 +375,8 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
         BtnHapus.setBackground(new java.awt.Color(255, 0, 0));
+        BtnHapus.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        BtnHapus.setForeground(new java.awt.Color(255, 255, 255));
         BtnHapus.setText("Hapus");
         BtnHapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -385,7 +384,8 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
             }
         });
 
-        edit.setBackground(new java.awt.Color(51, 255, 51));
+        edit.setBackground(new java.awt.Color(255, 255, 51));
+        edit.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         edit.setText("Edit");
         edit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -418,6 +418,18 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tabel_barang);
 
+        jButton1.setBackground(new java.awt.Color(0, 102, 0));
+        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("Tambah");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        LbTanggal.setText("Hari Tanggal");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -425,21 +437,29 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel17)
+                        .addGap(26, 1131, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel17))
-                        .addContainerGap(814, Short.MAX_VALUE))
+                        .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(LbTanggal)
+                        .addGap(256, 256, 256))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(edit)
-                                    .addComponent(BtnHapus))))
-                        .addGap(26, 26, 26))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(edit, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(BtnHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(267, 267, 267))))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 1042, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -447,18 +467,23 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel18)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(edit)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel18)
+                    .addComponent(LbTanggal))
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator8, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BtnHapus)
-                    .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
+                    .addComponent(txBarcode, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BtnHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(edit, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 582, Short.MAX_VALUE)
+                .addGap(44, 44, 44))
         );
 
-        add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1120, 660));
+        add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1290, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void BtnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnHapusActionPerformed
@@ -552,39 +577,63 @@ public class PanelManajemenBarang extends javax.swing.JPanel {
     }//GEN-LAST:event_editActionPerformed
 
     private void txBarcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txBarcodeActionPerformed
-  String barcode = txBarcode.getText().trim();
-    if (barcode.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Silakan masukkan barcode.");
-        return;
-    }
+        txBarcode.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                cariBarang(txBarcode.getText().trim());
+            }
 
-    // Cari dan tampilkan barang berdasarkan barcode
-    cariBarangDenganBarcode(barcode);
+            public void removeUpdate(DocumentEvent e) {
+                cariBarang(txBarcode.getText().trim());
+            }
 
-    // Setelah 3 detik, refresh tabel
-    new java.util.Timer().schedule(new java.util.TimerTask() {
-        @Override
-        public void run() {
-            SwingUtilities.invokeLater(() -> {
-                txBarcode.setText(""); // kosongkan input barcode
-                tampilkanDataBarang(); // tampilkan semua data kembali
-            });
-        }
-    }, 3000);
-
+            public void changedUpdate(DocumentEvent e) {
+                cariBarang(txBarcode.getText().trim());
+            }
+        });
 
     }//GEN-LAST:event_txBarcodeActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+// Buat instance panel popup
+        PopupTambahBarang panelPopup = new PopupTambahBarang();
+
+        // Buat JDialog sebagai popup/modal
+        JDialog dialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), "Tambah Barang", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setContentPane(panelPopup);
+        dialog.pack(); // Menyesuaikan ukuran dialog dengan isi panel
+        dialog.setLocationRelativeTo(null); // Tampilkan dialog di tengah layar
+
+        // Tambahkan listener agar setelah popup ditutup, data direfresh
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                refreshTableData(); // Panggil method untuk me-refresh data (pastikan kamu punya method ini)
+            }
+
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                refreshTableData();
+            }
+        });
+
+        // Tampilkan dialog
+        dialog.setVisible(true);        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtnHapus;
+    private javax.swing.JLabel LbTanggal;
     private javax.swing.JButton edit;
+    private javax.swing.JButton jButton1;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSeparator jSeparator8;
     private javax.swing.JTable tabel_barang;
     private javax.swing.JTextField txBarcode;
     // End of variables declaration//GEN-END:variables
